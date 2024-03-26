@@ -9,6 +9,8 @@ This mod is licensed under GNU GPLv3.
 
 ## Usage
 
+Mod builds can be found [here](https://github.com/eclipseisoffline/customtimecycle/packages/2106877).
+
 This mod is currently available for Minecraft 1.20.4 (Fabric modloader). The Fabric API is required.
 When installed server-side, the mod is not required on clients.
 
