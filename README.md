@@ -29,7 +29,7 @@ Each Minecraft dimension (also called a *level* within Minecraft's code) has 3 c
 
 - The *game time* counter:
   - Is incremented by 1 every server tick, and never resets.
-  - Counts the amount of ticks that have happened in the dimension.
+  - Counts the amount of ticks that have passed in the dimension.
   - Can be read in-game by using the vanilla `/time query gametime` command.
 - The *day time* counter:
   - Is incremented by 1 every server tick, and is set back to 0 when it reaches 24000.
@@ -43,8 +43,8 @@ Each Minecraft dimension (also called a *level* within Minecraft's code) has 3 c
   - In vanilla Minecraft, 20 server ticks occur every second, meaning one Minecraft day and night together last 20 minutes.
   - Can be read in-game by using the vanilla `/time query daytime` command.
 - The *day* counter:
-  - Is incremented by 1 every time the *day time* counter resets back to 0.
-  - Counts the amount of days that have happened in the dimension.
+  - Is incremented by 1 every time the *day time* counter resets back to 0, never resets.
+  - Counts the amount of days that have passed in the dimension.
   - Can be read in-game by using the vanilla `/time query day` command, or in the debug screen (F3) at the `Local Difficulty` line.
 
 This mod simply changes the rate the *day time* counter increments at, and by how much it increments:

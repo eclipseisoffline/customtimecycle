@@ -1,3 +1,5 @@
+import java.nio.file.Files
+
 plugins {
     id 'fabric-loom' version '1.5-SNAPSHOT'
     id 'maven-publish'
@@ -22,7 +24,7 @@ dependencies {
 
     mappings loom.layered {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.20.4:2024.02.25")
+        parchment("org.parchmentmc.data:${project.parchment_mappings}")
     }
 
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -64,13 +66,23 @@ jar {
     }
 }
 
-// configure the maven publication
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
+    repositories {
+        maven {
+            name = "GithubPackages"
+            url = uri("https://maven.pkg.github.com/eclipseisoffline/customtimecycle")
+            credentials {
+                username = "eclipseisoffline"
+                password = Files.readString(java.nio.file.Path.of("./github_auth"))
+            }
         }
     }
 
-    repositories {}
+    publications {
+        gpr(MavenPublication) {
+            artifactId project.archives_base_name
+
+            from components.java
+        }
+    }
 }
