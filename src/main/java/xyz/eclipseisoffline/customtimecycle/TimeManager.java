@@ -29,6 +29,7 @@ public class TimeManager extends SavedData {
             nightTimeRate.apply(level);
         }
         if (!isNormalTimeRate() && oldDayTime != level.getDayTime()) {
+            // Send time sync packet to all clients in this level when not following normal time rate and the time has changed
             level.getServer().getPlayerList().broadcastAll(new ClientboundSetTimePacket(level.getGameTime(), level.getDayTime(), false), level.dimension());
         }
     }
@@ -39,6 +40,14 @@ public class TimeManager extends SavedData {
         } else {
             return nightTimeRate;
         }
+    }
+
+    public DayPartTimeRate getDayTimeRate() {
+        return dayTimeRate;
+    }
+
+    public DayPartTimeRate getNightTimeRate() {
+        return nightTimeRate;
     }
 
     public boolean isNormalTimeRate() {

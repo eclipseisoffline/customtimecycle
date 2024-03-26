@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringUtil;
 import xyz.eclipseisoffline.customtimecycle.TimeManager.DayPartTimeRate;
 
 public class CustomTimeCycle implements ModInitializer {
@@ -19,17 +20,25 @@ public class CustomTimeCycle implements ModInitializer {
                         .then(Commands.literal("status")
                                 .executes(context -> {
                                     TimeManager timeManager = TimeManager.getInstance(context.getSource().getLevel());
-                                    if (timeManager.isNormalTimeRate()) {
-                                        context.getSource().sendSuccess(() -> Component.literal("Using normal time durations"), false);
-                                        return 0;
-                                    }
-
-                                    boolean usingDayCycle = timeManager.isDay();
                                     DayPartTimeRate timeRate = timeManager.getTimeRate();
 
-                                    context.getSource().sendSuccess(() -> Component.literal("Using " + (usingDayCycle ? "day time tick rate" : "night time tick rate") + " (duration=" + timeRate.getDuration() + ")"), false);
-                                    context.getSource().sendSuccess(() -> Component.literal("Incrementing " + timeRate.getIncrement() + " time ticks every " + timeRate.getIncrementModulus() + " server ticks"), false);
-                                    return 0;
+                                    if (timeManager.isNormalTimeRate()) {
+                                        context.getSource().sendSuccess(() -> Component.literal("Using normal time durations"), false);
+                                    } else {
+                                        boolean usingDayCycle = timeManager.isDay();
+
+                                        context.getSource().sendSuccess(() -> Component.literal("Using " + (usingDayCycle ? "day time tick rate" : "night time tick rate") + " (duration=" + timeRate.getDuration() + ")"), false);
+                                        context.getSource().sendSuccess(() -> Component.literal("Incrementing " + timeRate.getIncrement() + " time ticks every " + timeRate.getIncrementModulus() + " server ticks"), false);
+                                    }
+
+                                    String dayTimeDuration = StringUtil.formatTickDuration(
+                                            (int) timeManager.getDayTimeRate().getDuration(), 20);
+                                    String nightTimeDuration = StringUtil.formatTickDuration(
+                                            (int) timeManager.getNightTimeRate().getDuration(), 20);
+                                    context.getSource().sendSuccess(() -> Component.literal("Day time duration: " + dayTimeDuration), false);
+                                    context.getSource().sendSuccess(() -> Component.literal("Night time duration: " + nightTimeDuration), false);
+
+                                    return (int) timeManager.getTimeRate().getDuration();
                                 })
                         )
                         .then(Commands.literal("set")

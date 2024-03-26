@@ -18,6 +18,7 @@ public abstract class MinecraftServerMixin {
     @Redirect(method = "synchronizeTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastAll(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/resources/ResourceKey;)V"))
     public void broadcastCustomTimeRules(PlayerList instance, Packet<?> packet, ResourceKey<Level> dimension, ServerLevel level) {
         if (!TimeManager.getInstance(level).isNormalTimeRate()) {
+            // Tell the clients not to update time locally when using custom time rate to prevent sync issues
             instance.broadcastAll(new ClientboundSetTimePacket(level.getGameTime(), level.getDayTime(), false), dimension);
         } else {
             instance.broadcastAll(packet, dimension);
