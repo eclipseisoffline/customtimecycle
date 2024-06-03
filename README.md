@@ -11,7 +11,7 @@ This mod is licensed under GNU GPLv3.
 
 Mod builds can be found [here](https://github.com/eclipseisoffline/customtimecycle/packages/2106877).
 
-This mod is currently available for Fabric, Minecraft 1.20.5 and 1.20.4 (no longer updated).
+This mod is currently available for Fabric, Minecraft 1.20.5+6 and 1.20.4 (no longer updated).
 The Fabric API is required. When installed server-side, the mod is not required on clients.
 
 Durations of days and nights can be configured across dimensions and are saved across server restarts / world saves.

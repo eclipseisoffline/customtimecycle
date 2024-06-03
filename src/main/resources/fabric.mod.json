@@ -32,13 +32,14 @@
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
-    "minecraft": "${minecraft_version}"
+    "minecraft": "${supported_versions}"
   },
   "custom": {
     "modmenu": {
       "links": {
         "modmenu.donate": "https://ko-fi.com/eclipseisoffline",
-        "modmenu.kofi": "https://ko-fi.com/eclipseisoffline"
+        "modmenu.kofi": "https://ko-fi.com/eclipseisoffline",
+        "modmenu.modrinth": "https://modrinth.com/mod/customtimecycle"
       }
     }
   }
