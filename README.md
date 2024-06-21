@@ -29,6 +29,8 @@ This mod adds a simple command, `/timecycle`. Its usage is as follows:
 - `/timecycle reset`
   - Resets the durations of the Minecraft day and night in the current dimension.
 
+Using the `/timecycle` command requires the `timecycle.command` permission or operator level 2.
+
 ## How it works (technical explanation)
 
 Each Minecraft dimension (also called a *level* within Minecraft's code) has 3 counters related to time:

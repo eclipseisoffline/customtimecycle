@@ -1,7 +1,7 @@
 package xyz.eclipseisoffline.customtimecycle;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.LongArgumentType;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.Commands;
@@ -16,7 +16,7 @@ public class CustomTimeCycle implements ModInitializer {
     public void onInitialize() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
                 Commands.literal("timecycle")
-                        .requires(source -> source.hasPermission(2))
+                        .requires(Permissions.require("timecycle.command", 2))
                         .then(Commands.literal("status")
                                 .executes(context -> {
                                     TimeManager timeManager = TimeManager.getInstance(context.getSource().getLevel());

@@ -32,7 +32,8 @@
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
-    "minecraft": "${supported_versions}"
+    "minecraft": "${supported_versions}",
+    "fabric-permissions-api-v0": "*"
   },
   "custom": {
     "modmenu": {
