@@ -1,6 +1,8 @@
 package xyz.eclipseisoffline.customtimecycle;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -28,7 +30,9 @@ public class CustomTimeCycle implements ModInitializer {
                                         boolean usingDayCycle = timeManager.isDay();
 
                                         context.getSource().sendSuccess(() -> Component.literal("Using " + (usingDayCycle ? "day time tick rate" : "night time tick rate") + " (duration=" + timeRate.getDuration() + ")"), false);
-                                        context.getSource().sendSuccess(() -> Component.literal("Incrementing " + timeRate.getIncrement() + " time ticks every " + timeRate.getIncrementModulus() + " server ticks"), false);
+                                        context.getSource().sendSuccess(() -> Component.literal("Incrementing "
+                                                + BigDecimal.valueOf(timeRate.getIncrement()).setScale(2, RoundingMode.HALF_UP).doubleValue()
+                                                + " time ticks every " + timeRate.getIncrementModulus() + " server ticks"), false);
                                     }
 
                                     String dayTimeDuration = StringUtil.formatTickDuration(
