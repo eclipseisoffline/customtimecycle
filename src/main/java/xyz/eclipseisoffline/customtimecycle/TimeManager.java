@@ -4,6 +4,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
 
@@ -117,29 +118,52 @@ public class TimeManager extends SavedData {
     }
 
     public static class DayPartTimeRate {
+        private static final long MAX_DAYTIME = 24000L;
         private final long duration;
         private final long incrementModulus;
-        private final long increment;
+        private final double increment;
         private final boolean isNormal;
+        private double dayTime = -1;
 
         private DayPartTimeRate(long tickDuration, long normal) {
             isNormal = tickDuration == normal;
             duration = tickDuration;
+
             if (isNormal) {
                 incrementModulus = 1;
                 increment = 1;
             } else if (tickDuration < normal) {
                 incrementModulus = 1;
-                increment = normal / tickDuration;
+                increment = (double) normal / tickDuration;
             } else {
-                incrementModulus = tickDuration / normal;
-                increment = 1;
+                double modulus = (double) tickDuration / normal;
+                long roundedModulus;
+                if (Mth.floor(modulus) != modulus) {
+                    roundedModulus = Mth.lfloor(modulus);
+                    increment = roundedModulus / modulus;
+                } else {
+                    roundedModulus = (long) modulus;
+                    increment = 1;
+                }
+                incrementModulus = roundedModulus;
             }
         }
 
         private void apply(ServerLevel level) {
+            long currentTime = Mth.lfloor(dayTime);
+            if (currentTime != level.getDayTime()) {
+                dayTime = level.getDayTime();
+                currentTime = level.getDayTime();
+            }
             if (level.getGameTime() % incrementModulus == 0) {
-                level.setDayTime(level.getDayTime() + increment);
+                dayTime += increment;
+                if (dayTime > MAX_DAYTIME) {
+                    dayTime = 0L;
+                }
+                long newTime = Mth.lfloor(dayTime);
+                if (newTime != currentTime) {
+                    level.setDayTime(newTime);
+                }
             }
         }
 
@@ -151,7 +175,7 @@ public class TimeManager extends SavedData {
             return incrementModulus;
         }
 
-        public long getIncrement() {
+        public double getIncrement() {
             return increment;
         }
     }
