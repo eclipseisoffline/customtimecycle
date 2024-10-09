@@ -157,9 +157,6 @@ public class TimeManager extends SavedData {
             }
             if (level.getGameTime() % incrementModulus == 0) {
                 dayTime += increment;
-                if (dayTime > MAX_DAYTIME) {
-                    dayTime = 0L;
-                }
                 long newTime = Mth.lfloor(dayTime);
                 if (newTime != currentTime) {
                     level.setDayTime(newTime);
