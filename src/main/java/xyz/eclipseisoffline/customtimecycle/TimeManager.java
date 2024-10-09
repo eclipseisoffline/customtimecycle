@@ -118,7 +118,6 @@ public class TimeManager extends SavedData {
     }
 
     public static class DayPartTimeRate {
-        private static final long MAX_DAYTIME = 24000L;
         private final long duration;
         private final long incrementModulus;
         private final double increment;
