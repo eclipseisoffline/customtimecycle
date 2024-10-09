@@ -118,7 +118,6 @@ public class TimeManager extends SavedData {
     }
 
     public static class DayPartTimeRate {
-        private static final long MAX_DAYTIME = 24000L;
         private final long duration;
         private final long incrementModulus;
         private final double increment;
@@ -157,9 +156,6 @@ public class TimeManager extends SavedData {
             }
             if (level.getGameTime() % incrementModulus == 0) {
                 dayTime += increment;
-                if (dayTime > MAX_DAYTIME) {
-                    dayTime = 0L;
-                }
                 long newTime = Mth.lfloor(dayTime);
                 if (newTime != currentTime) {
                     level.setDayTime(newTime);
