@@ -1,8 +1,8 @@
 # Custom Time Cycle
 
-![Modrinth Version](https://img.shields.io/modrinth/v/Xuf4fk5b?logo=modrinth&color=008800)
-![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/Xuf4fk5b?logo=modrinth&color=008800)
-![Modrinth Downloads](https://img.shields.io/modrinth/dt/Xuf4fk5b?logo=modrinth&color=008800)
+[![Modrinth Version](https://img.shields.io/modrinth/v/Xuf4fk5b?logo=modrinth&color=008800)](https://modrinth.com/mod/customtimecycle)
+[![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/Xuf4fk5b?logo=modrinth&color=008800)](https://modrinth.com/mod/customtimecycle)
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/Xuf4fk5b?logo=modrinth&color=008800)](https://modrinth.com/mod/customtimecycle)
 [![Discord Badge](https://img.shields.io/badge/chat-discord-%235865f2)](https://discord.gg/CNNkyWRkqm)
 [![Github Badge](https://img.shields.io/badge/github-customtimecycle-white?logo=github)](https://github.com/eclipseisoffline/customtimecycle)
 ![GitHub License](https://img.shields.io/github/license/eclipseisoffline/customtimecycle)
