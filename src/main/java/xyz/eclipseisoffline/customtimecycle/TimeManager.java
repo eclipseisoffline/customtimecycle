@@ -1,6 +1,5 @@
 package xyz.eclipseisoffline.customtimecycle;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.server.level.ServerLevel;
@@ -80,11 +79,7 @@ public class TimeManager extends SavedData {
     }
 
     public static TimeManager getInstance(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(TimeManager.timeManagerFactory(level), TIME_MANAGER_SAVE);
-    }
-
-    public static SavedData.Factory<TimeManager> timeManagerFactory(ServerLevel level) {
-        return new Factory<>(() -> new TimeManager(level), (tag, provider) -> TimeManager.read(level, tag), null);
+        return level.getDataStorage().computeIfAbsent(tag -> read(level, tag), () -> new TimeManager(level), TIME_MANAGER_SAVE);
     }
 
     private static TimeManager read(ServerLevel level, CompoundTag compoundTag) {
@@ -107,7 +102,7 @@ public class TimeManager extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
+    public @NotNull CompoundTag save(CompoundTag compoundTag) {
         compoundTag.putLong("daytime", dayTimeRate.duration);
         compoundTag.putLong("nighttime", nightTimeRate.duration);
         return compoundTag;
