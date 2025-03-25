@@ -1,14 +1,24 @@
 package xyz.eclipseisoffline.customtimecycle;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.saveddata.SavedData;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.level.saveddata.SavedDataType;
+
+import java.util.function.Function;
 
 public class TimeManager extends SavedData {
+    private static final Function<Long, DataResult<Long>> TIME_RATE_VALIDATOR = timeRate -> {
+        if (invalidTimeRate(timeRate)) {
+            return DataResult.error(() -> "Time rate must be at least 1");
+        }
+        return DataResult.success(timeRate);
+    };
+
     private static final String TIME_MANAGER_SAVE = "timemanager";
     private static final long NORMAL_DAY_TIME = 12000;
     private static final long NORMAL_NIGHT_TIME = 12000;
@@ -17,10 +27,14 @@ public class TimeManager extends SavedData {
     private DayPartTimeRate dayTimeRate;
     private DayPartTimeRate nightTimeRate;
 
-    public TimeManager(ServerLevel level) {
+    private TimeManager(ServerLevel level, long dayTimeRate, long nightTimeRate) {
         this.level = level;
-        dayTimeRate = new DayPartTimeRate(NORMAL_DAY_TIME, NORMAL_DAY_TIME);
-        nightTimeRate = new DayPartTimeRate(NORMAL_NIGHT_TIME, NORMAL_NIGHT_TIME);
+        this.dayTimeRate = new DayPartTimeRate(dayTimeRate, NORMAL_DAY_TIME);
+        this.nightTimeRate = new DayPartTimeRate(nightTimeRate, NORMAL_NIGHT_TIME);
+    }
+
+    private TimeManager(ServerLevel level) {
+        this(level, NORMAL_DAY_TIME, NORMAL_NIGHT_TIME);
     }
 
     public void tickTime() {
@@ -60,19 +74,17 @@ public class TimeManager extends SavedData {
         if (invalidTimeRate(dayTimeRate) || invalidTimeRate(nightTimeRate)) {
             throw new IllegalArgumentException("Invalid time rate");
         }
-        setTimeRate(dayTimeRate, nightTimeRate, true);
+        actuallySetTimeRate(dayTimeRate, nightTimeRate);
     }
 
     public void resetTimeRate() {
-        setTimeRate(NORMAL_DAY_TIME, NORMAL_NIGHT_TIME);
+        actuallySetTimeRate(NORMAL_DAY_TIME, NORMAL_NIGHT_TIME);
     }
 
-    private void setTimeRate(long dayTimeRate, long nightTimeRate, boolean dirty) {
+    private void actuallySetTimeRate(long dayTimeRate, long nightTimeRate) {
         this.dayTimeRate = new DayPartTimeRate(dayTimeRate, NORMAL_DAY_TIME);
         this.nightTimeRate = new DayPartTimeRate(nightTimeRate, NORMAL_NIGHT_TIME);
-        if (dirty) {
-            setDirty();
-        }
+        setDirty();
     }
 
     public boolean isDay() {
@@ -80,37 +92,18 @@ public class TimeManager extends SavedData {
     }
 
     public static TimeManager getInstance(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(TimeManager.timeManagerFactory(level), TIME_MANAGER_SAVE);
+        return level.getDataStorage().computeIfAbsent(TimeManager.type(level));
     }
 
-    public static SavedData.Factory<TimeManager> timeManagerFactory(ServerLevel level) {
-        return new Factory<>(() -> new TimeManager(level), (tag, provider) -> TimeManager.read(level, tag), null);
-    }
+    private static SavedDataType<TimeManager> type(ServerLevel level) {
+        Codec<TimeManager> codec = RecordCodecBuilder.create(instance ->
+                instance.group(
+                        Codec.LONG.validate(TIME_RATE_VALIDATOR).optionalFieldOf("daytime", NORMAL_DAY_TIME).forGetter(manager -> manager.dayTimeRate.duration),
+                        Codec.LONG.validate(TIME_RATE_VALIDATOR).optionalFieldOf("nighttime", NORMAL_NIGHT_TIME).forGetter(manager -> manager.nightTimeRate.duration)
+                ).apply(instance, (dayTimeRate, nightTimeRate) -> new TimeManager(level, dayTimeRate, nightTimeRate))
+        );
 
-    private static TimeManager read(ServerLevel level, CompoundTag compoundTag) {
-        TimeManager manager = new TimeManager(level);
-        long daytime = compoundTag.getLong("daytime");
-        long nighttime = compoundTag.getLong("nighttime");
-
-        boolean dirty = false;
-        if (invalidTimeRate(daytime)) {
-            daytime = NORMAL_DAY_TIME;
-            dirty = true;
-        }
-        if (invalidTimeRate(nighttime)) {
-            nighttime = NORMAL_NIGHT_TIME;
-            dirty = true;
-        }
-
-        manager.setTimeRate(daytime, nighttime, dirty);
-        return manager;
-    }
-
-    @Override
-    public @NotNull CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
-        compoundTag.putLong("daytime", dayTimeRate.duration);
-        compoundTag.putLong("nighttime", nightTimeRate.duration);
-        return compoundTag;
+        return new SavedDataType<>(TIME_MANAGER_SAVE, () -> new TimeManager(level), codec, null);
     }
 
     private static boolean invalidTimeRate(long timeRate) {
