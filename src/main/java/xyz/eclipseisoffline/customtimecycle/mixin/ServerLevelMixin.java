@@ -5,7 +5,6 @@ import java.util.concurrent.Executor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.world.RandomSequences;
 import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.Level;
@@ -29,7 +28,7 @@ public abstract class ServerLevelMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     public void initialiseTimeManager(MinecraftServer server, Executor dispatcher,
             LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData,
-            ResourceKey<Level> dimension, LevelStem levelStem, ChunkProgressListener progressListener,
+            ResourceKey<Level> dimension, LevelStem levelStem,
             boolean isDebug, long biomeZoomSeed, List<CustomSpawner> customSpawners, boolean tickTime,
             RandomSequences randomSequences, CallbackInfo callbackInfo) {
         timeManager = TimeManager.getInstance((ServerLevel) (Object) this);
