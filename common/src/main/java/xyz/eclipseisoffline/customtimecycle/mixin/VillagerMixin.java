@@ -16,8 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.eclipseisoffline.customtimecycle.TimeManager;
 
 @Mixin(Villager.class)
-public abstract class VillagerMixin extends AbstractVillager implements ReputationEventHandler,
-        VillagerDataHolder {
+public abstract class VillagerMixin extends AbstractVillager implements ReputationEventHandler, VillagerDataHolder {
 
     public VillagerMixin(EntityType<? extends AbstractVillager> entityType,
             Level level) {
