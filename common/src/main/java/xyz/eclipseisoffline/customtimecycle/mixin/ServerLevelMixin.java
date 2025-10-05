@@ -24,7 +24,7 @@ import xyz.eclipseisoffline.customtimecycle.TimeManager;
 public abstract class ServerLevelMixin {
 
     @Unique
-    private TimeManager timeManager;
+    private TimeManager customTimeCycle$timeManager;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void initialiseTimeManager(MinecraftServer server, Executor dispatcher,
@@ -32,11 +32,11 @@ public abstract class ServerLevelMixin {
             ResourceKey<Level> dimension, LevelStem levelStem, ChunkProgressListener progressListener,
             boolean isDebug, long biomeZoomSeed, List<CustomSpawner> customSpawners, boolean tickTime,
             RandomSequences randomSequences, CallbackInfo callbackInfo) {
-        timeManager = TimeManager.getInstance((ServerLevel) (Object) this);
+        customTimeCycle$timeManager = TimeManager.getInstance((ServerLevel) (Object) this);
     }
 
     @Redirect(method = "tickTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setDayTime(J)V"))
     public void customDayTimeUpdate(ServerLevel level, long time) {
-        timeManager.tickTime();
+        customTimeCycle$timeManager.tickTime();
     }
 }

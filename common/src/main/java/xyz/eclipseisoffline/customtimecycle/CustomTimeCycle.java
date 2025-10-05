@@ -1,24 +1,27 @@
 package xyz.eclipseisoffline.customtimecycle;
 
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import java.util.function.Predicate;
+
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 import xyz.eclipseisoffline.customtimecycle.TimeManager.DayPartTimeRate;
 
-public class CustomTimeCycle implements ModInitializer {
+public interface CustomTimeCycle {
 
-    @Override
-    public void onInitialize() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
+    String MOD_ID = "customtimecycle";
+    String COMMAND_PERMISSION = "command";
+
+    default void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(
                 Commands.literal("timecycle")
-                        .requires(Permissions.require("timecycle.command", 2))
+                        .requires(checkPermission(MOD_ID + "." + COMMAND_PERMISSION, 2))
                         .then(Commands.literal("status")
                                 .executes(context -> {
                                     TimeManager timeManager = TimeManager.getInstance(context.getSource().getLevel());
@@ -67,6 +70,8 @@ public class CustomTimeCycle implements ModInitializer {
                                     return 0;
                                 })
                         )
-        ));
+        );
     }
+
+    Predicate<CommandSourceStack> checkPermission(String permission, int operatorLevel);
 }
