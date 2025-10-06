@@ -51,7 +51,7 @@ public record TimeManagerConfiguration(long dayTime, long nightTime) {
         }
     }
 
-    public static void load(Path path) {
+    public static void load(Path path, boolean saveWhenMissing) {
         if (loaded != null) {
             return;
         }
@@ -70,7 +70,7 @@ public record TimeManagerConfiguration(long dayTime, long nightTime) {
             } else {
                 CustomTimeCycle.LOGGER.warn("Failed to read config file, because it's not readable!");
             }
-        } else {
+        } else if (saveWhenMissing) {
             CustomTimeCycle.LOGGER.info("Configuration not found, writing default one");
             loaded.save(path);
         }
