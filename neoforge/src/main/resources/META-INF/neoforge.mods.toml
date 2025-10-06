@@ -21,11 +21,11 @@ config="customtimecycle-neoforge.mixins.json"
     type="required"
     versionRange="${neoforge_version}"
     ordering="NONE"
-    side="SERVER"
+    side="BOTH"
 
 [[dependencies]]
     modId="minecraft"
     type="required"
     versionRange="${neoforge_minecraft_version}"
     ordering="NONE"
-    side="SERVER"
+    side="BOTH"

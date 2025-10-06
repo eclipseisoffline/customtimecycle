@@ -55,7 +55,7 @@ Durations of days and nights can be configured across dimensions and are saved a
 
 For clients, the time cycle of a world can be configured upon creation, by selecting the "More" tab at the top, then
 clicking the "Time Cycle" button. You can also configure default time cycle durations for all new created worlds, in the mod's
-global configuration screen. This can be accessed on Fabric using ModMenu mod, and on NeoForge using the built-in mod menu.
+global configuration screen. This can be accessed on Fabric using the ModMenu mod, and on NeoForge using the built-in mod menu.
 Global configuration is stored in `.minecraft/config/customtimecyle.json`.
 
 The mod also adds a simple command, `/timecycle`, which can be used to alter the time cycle on servers and existing singleplayer worlds.
