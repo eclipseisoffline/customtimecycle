@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
+import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 public class TimeManager extends SavedData {
     private static final String TIME_MANAGER_SAVE = "timemanager";
@@ -88,6 +89,10 @@ public class TimeManager extends SavedData {
 
     public static SavedData.Factory<TimeManager> timeManagerFactory(ServerLevel level) {
         return new Factory<>(() -> new TimeManager(level), (tag, provider) -> TimeManager.read(level, tag), null);
+    }
+
+    public static void setInstance(ServerLevel level, PreconfiguredTimeCycle preconfigured) {
+        level.getDataStorage().set(type(level), new TimeManager(level, preconfigured.dayTime(), preconfigured.nightTime()));
     }
 
     private static TimeManager read(ServerLevel level, CompoundTag compoundTag) {

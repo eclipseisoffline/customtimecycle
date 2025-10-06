@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,6 +35,13 @@ public record TimeManagerConfiguration(long dayTime, long nightTime) {
     );
     public static final TimeManagerConfiguration DEFAULT = new TimeManagerConfiguration(TimeManager.NORMAL_DAY_TIME, TimeManager.NORMAL_NIGHT_TIME);
     private static TimeManagerConfiguration loaded;
+
+    public PreconfiguredTimeCycle toPreconfigured() {
+        if (equals(DEFAULT)) {
+            return PreconfiguredTimeCycle.DEFAULT;
+        }
+        return new PreconfiguredTimeCycle(String.valueOf(dayTime), String.valueOf(nightTime), (int) dayTime, (int) nightTime);
+    }
 
     public static void load(Path path) {
         if (loaded != null) {
