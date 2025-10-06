@@ -1,4 +1,4 @@
-package xyz.eclipseisoffline.customtimecycle.mixin;
+package xyz.eclipseisoffline.customtimecycle.mixin.client;
 
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import org.spongepowered.asm.mixin.Mixin;

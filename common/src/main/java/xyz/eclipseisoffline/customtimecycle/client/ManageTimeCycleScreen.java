@@ -1,4 +1,4 @@
-package xyz.eclipseisoffline.customtimecycle.screens;
+package xyz.eclipseisoffline.customtimecycle.client;
 
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringUtil;
 import xyz.eclipseisoffline.customtimecycle.TimeManagerConfiguration;
+import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 import java.util.function.Consumer;
 
@@ -76,10 +77,6 @@ public class ManageTimeCycleScreen extends Screen {
 
         layout.visitWidgets(this::addRenderableWidget);
         repositionElements();
-    }
-
-    public PreconfiguredTimeCycle getConfigured() {
-        return configured;
     }
 
     private Consumer<String> validateTime(boolean nightTime) {

@@ -8,11 +8,11 @@
     "PrimaryLevelDataMixin",
     "ServerLevelMixin",
     "VillagerMixin",
-    "WorldCreationUiStateMixin"
   ],
   "client": [
-    "CreateWorldScreenMixin",
-    "CreateWorldScreenMixin$MoreTabMixin"
+    "client.CreateWorldScreenMixin",
+    "client.CreateWorldScreenMixin$MoreTabMixin",
+    "client.WorldCreationUiStateMixin"
   ],
   "injectors": {
     "defaultRequire": 1

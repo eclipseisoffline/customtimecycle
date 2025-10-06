@@ -1,6 +1,7 @@
 package xyz.eclipseisoffline.customtimecycle;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
@@ -13,7 +14,7 @@ public class CustomTimeCycleFabric implements ModInitializer, CustomTimeCycle {
 
     @Override
     public void onInitialize() {
-        initialise();
+        initialise(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT);
         CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) -> registerCommand(dispatcher));
     }
 

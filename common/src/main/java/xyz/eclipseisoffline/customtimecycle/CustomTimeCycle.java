@@ -24,9 +24,9 @@ public interface CustomTimeCycle {
     String COMMAND_PERMISSION = "command";
     Path CONFIG_FILE = Path.of(MOD_ID + ".json");
 
-    default void initialise() {
+    default void initialise(boolean client) {
         LOGGER.info("Custom Time Cycle initialising, reading configuration");
-        TimeManagerConfiguration.load(getConfigDir().resolve(CONFIG_FILE));
+        TimeManagerConfiguration.load(getConfigDir().resolve(CONFIG_FILE), client);
     }
 
     default void saveConfiguration(PreconfiguredTimeCycle timeCycle) {

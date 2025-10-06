@@ -1,7 +1,9 @@
 package xyz.eclipseisoffline.customtimecycle;
 
 import net.minecraft.commands.CommandSourceStack;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.server.permission.PermissionAPI;
@@ -16,7 +18,7 @@ public class CustomTimeCycleNeoForge extends CustomTimeCycleNeoForgeBase {
     private final PermissionNode<Boolean> commandPermission;
 
     public CustomTimeCycleNeoForge() {
-        initialise();
+        initialise(FMLLoader.getCurrent().getDist() == Dist.CLIENT);
 
         NeoForge.EVENT_BUS.addListener(this::registerPermissionNodesEvent);
         NeoForge.EVENT_BUS.addListener(this::registerCommandsEvent);
