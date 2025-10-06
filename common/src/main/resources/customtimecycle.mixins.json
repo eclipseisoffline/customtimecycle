@@ -3,11 +3,12 @@
   "minVersion": "0.8",
   "package": "xyz.eclipseisoffline.customtimecycle.mixin",
   "compatibilityLevel": "JAVA_21",
+  "refmap": "customtimecycle-refmap.json",
   "mixins": [
     "MinecraftServerMixin",
     "PrimaryLevelDataMixin",
     "ServerLevelMixin",
-    "VillagerMixin",
+    "VillagerMixin"
   ],
   "client": [
     "client.CreateWorldScreenMixin",
