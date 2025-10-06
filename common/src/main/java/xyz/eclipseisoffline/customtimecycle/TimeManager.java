@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 public class TimeManager extends SavedData {
     private static final String TIME_MANAGER_SAVE = "timemanager";
@@ -82,6 +83,10 @@ public class TimeManager extends SavedData {
 
     public static TimeManager getInstance(ServerLevel level) {
         return level.getDataStorage().computeIfAbsent(TimeManager.type(level));
+    }
+
+    public static void setInstance(ServerLevel level, PreconfiguredTimeCycle preconfigured) {
+        level.getDataStorage().set(type(level), new TimeManager(level, preconfigured.dayTime(), preconfigured.nightTime()));
     }
 
     private static SavedDataType<TimeManager> type(ServerLevel level) {

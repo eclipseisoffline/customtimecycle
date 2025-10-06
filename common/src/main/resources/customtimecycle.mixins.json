@@ -5,8 +5,14 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "MinecraftServerMixin",
+    "PrimaryLevelDataMixin",
     "ServerLevelMixin",
-    "VillagerMixin"
+    "VillagerMixin",
+    "WorldCreationUiStateMixin"
+  ],
+  "client": [
+    "CreateWorldScreenMixin",
+    "CreateWorldScreenMixin$MoreTabMixin"
   ],
   "injectors": {
     "defaultRequire": 1
