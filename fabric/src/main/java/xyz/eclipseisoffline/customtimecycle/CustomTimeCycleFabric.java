@@ -10,7 +10,7 @@ import net.minecraft.commands.CommandSourceStack;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 
-public class CustomTimeCycleFabric implements ModInitializer, CustomTimeCycle {
+public class CustomTimeCycleFabric extends CustomTimeCycle implements ModInitializer {
 
     @Override
     public void onInitialize() {

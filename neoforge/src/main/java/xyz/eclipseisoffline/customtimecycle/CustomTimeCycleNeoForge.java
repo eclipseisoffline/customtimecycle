@@ -11,10 +11,11 @@ import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
 import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
 import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
 
+import java.nio.file.Path;
 import java.util.function.Predicate;
 
 @Mod(CustomTimeCycle.MOD_ID)
-public class CustomTimeCycleNeoForge extends CustomTimeCycleNeoForgeBase {
+public class CustomTimeCycleNeoForge extends CustomTimeCycle {
     private final PermissionNode<Boolean> commandPermission;
 
     public CustomTimeCycleNeoForge() {
@@ -38,5 +39,10 @@ public class CustomTimeCycleNeoForge extends CustomTimeCycleNeoForgeBase {
     public Predicate<CommandSourceStack> checkPermission(String permission, int operatorLevel) {
         return source -> source.hasPermission(operatorLevel)
                 || (source.getPlayer() != null && PermissionAPI.getPermission(source.getPlayer(), commandPermission));
+    }
+
+    @Override
+    public Path getConfigDir() {
+        return FMLLoader.getCurrent().getGameDir().resolve("config");
     }
 }

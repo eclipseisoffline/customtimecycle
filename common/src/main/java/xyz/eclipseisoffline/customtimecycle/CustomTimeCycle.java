@@ -17,23 +17,28 @@ import org.slf4j.Logger;
 import xyz.eclipseisoffline.customtimecycle.TimeManager.DayPartTimeRate;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
-public interface CustomTimeCycle {
+public abstract class CustomTimeCycle {
+    private static CustomTimeCycle instance;
+    public static final Logger LOGGER = LogUtils.getLogger();
+    public static final String MOD_ID = "customtimecycle";
+    public static final String COMMAND_PERMISSION = "command";
+    public static final Path CONFIG_FILE = Path.of(MOD_ID + ".json");
 
-    Logger LOGGER = LogUtils.getLogger();
-    String MOD_ID = "customtimecycle";
-    String COMMAND_PERMISSION = "command";
-    Path CONFIG_FILE = Path.of(MOD_ID + ".json");
+    public void initialise(boolean client) {
+        if (instance != null) {
+            throw new IllegalStateException("CustomTimeCycle is already initialised");
+        }
+        instance = this;
 
-    default void initialise(boolean client) {
         LOGGER.info("Custom Time Cycle initialising, reading configuration");
         TimeManagerConfiguration.load(getConfigDir().resolve(CONFIG_FILE), client);
     }
 
-    default void saveConfiguration(PreconfiguredTimeCycle timeCycle) {
+    public void reloadConfig(PreconfiguredTimeCycle timeCycle) {
         TimeManagerConfiguration.loadFromPreconfigured(getConfigDir().resolve(CONFIG_FILE), timeCycle);
     }
 
-    default void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("timecycle")
                         .requires(checkPermission(MOD_ID + "." + COMMAND_PERMISSION, 2))
@@ -88,9 +93,13 @@ public interface CustomTimeCycle {
         );
     }
 
-    default Predicate<CommandSourceStack> checkPermission(String permission, int operatorLevel) {
+    public Predicate<CommandSourceStack> checkPermission(String permission, int operatorLevel) {
         return source -> source.hasPermission(operatorLevel);
     }
 
-    Path getConfigDir();
+    public abstract Path getConfigDir();
+
+    public static CustomTimeCycle getInstance() {
+        return instance;
+    }
 }
