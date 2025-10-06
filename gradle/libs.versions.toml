@@ -1,5 +1,5 @@
 [versions]
-multimod = "0.1.2-SNAPSHOT"
+multimod = "0.1.4-SNAPSHOT"
 
 minecraft = "1.21.9"
 neoform = "20250930.151910"
@@ -12,7 +12,7 @@ fabric-api = "0.134.0+1.21.9"
 fabric-permissions-api = "0.4.1"
 fabric-modmenu = "16.0.0-rc.1"
 
-neoforge = "21.9.11-beta"
+neoforge = "21.9.15-beta"
 supported-neoforge = "[21.9,)"
 
 minecraft-release = "1.21.9"

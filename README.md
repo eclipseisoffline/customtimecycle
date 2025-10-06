@@ -6,9 +6,12 @@
 [![Discord Badge](https://img.shields.io/badge/chat-discord-%235865f2)](https://discord.gg/CNNkyWRkqm)
 [![Github Badge](https://img.shields.io/badge/github-customtimecycle-white?logo=github)](https://github.com/eclipseisoffline/customtimecycle)
 ![GitHub License](https://img.shields.io/github/license/eclipseisoffline/customtimecycle)
+![Available for Fabric](https://img.shields.io/badge/available_for-fabric-_?color=%23dbd0b4)
+![Available for NeoForge](https://img.shields.io/badge/available_for-NeoForge-_?color=%23e58c53)
 
 Custom Time Cycle is a mod that allows changing the duration of Minecraft days and nights using a simple
-command, without changing tick speed.
+command, without changing tick speed. It is available for both Fabric and NeoForge. It can be used on servers (without
+being required on player clients), and in singleplayer.
 
 ## License
 
@@ -41,15 +44,22 @@ versions may be delayed from time to time, as I do not always have the time to i
 
 Unsupported versions are still available to download, but they won't receive new features or bugfixes.
 
+NeoForge ports are available for Minecraft 1.21+1 and for Minecraft 1.21.9 onwards.
+
 ## Usage
 
 Mod builds can be found on the releases page, as well as on [Modrinth](https://modrinth.com/mod/customtimecycle).
 
-The Fabric API is required. When installed server-side, the mod is not required on clients.
-
+On Fabric, the Fabric API is required. When installed server-side, the mod is not required on clients.
 Durations of days and nights can be configured across dimensions and are saved across server restarts / world saves.
 
-This mod adds a simple command, `/timecycle`. Its usage is as follows:
+For clients, the time cycle of a world can be configured upon creation, by selecting the "More" tab at the top, then
+clicking the "Time Cycle" button. You can also configure default time cycle durations for all new created worlds, in the mod's
+global configuration screen. This can be accessed on Fabric using ModMenu mod, and on NeoForge using the built-in mod menu.
+Global configuration is stored in `.minecraft/config/customtimecyle.json`.
+
+The mod also adds a simple command, `/timecycle`, which can be used to alter the time cycle on servers and existing singleplayer worlds.
+Its usage is as follows:
 
 - `/timecycle status`
   - Shows a simple status message displaying which time durations are currently in use in the current dimension.
@@ -59,6 +69,16 @@ This mod adds a simple command, `/timecycle`. Its usage is as follows:
   - Resets the durations of the Minecraft day and night in the current dimension.
 
 Using the `/timecycle` command requires the `timecycle.command` permission or operator level 2.
+
+Modpack developers can also include the following file in the `config` folder to preconfigure time cycle durations for
+worlds on servers or clients:
+
+```json
+{
+  "daytime": <day time ticks>,
+  "nighttime": <night time ticks>
+}
+```
 
 ## How it works (technical explanation)
 
