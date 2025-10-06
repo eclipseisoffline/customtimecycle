@@ -1,27 +1,16 @@
 package xyz.eclipseisoffline.customtimecycle;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
-import java.util.function.Function;
-
 public class TimeManager extends SavedData {
-    private static final Function<Long, DataResult<Long>> TIME_RATE_VALIDATOR = timeRate -> {
-        if (invalidTimeRate(timeRate)) {
-            return DataResult.error(() -> "Time rate must be at least 1");
-        }
-        return DataResult.success(timeRate);
-    };
-
     private static final String TIME_MANAGER_SAVE = "timemanager";
-    private static final long NORMAL_DAY_TIME = 12000;
-    private static final long NORMAL_NIGHT_TIME = 12000;
+    public static final long NORMAL_DAY_TIME = 12000;
+    public static final long NORMAL_NIGHT_TIME = 12000;
 
     private final ServerLevel level;
     private DayPartTimeRate dayTimeRate;
@@ -34,7 +23,7 @@ public class TimeManager extends SavedData {
     }
 
     private TimeManager(ServerLevel level) {
-        this(level, NORMAL_DAY_TIME, NORMAL_NIGHT_TIME);
+        this(level, TimeManagerConfiguration.getLoaded().dayTime(), TimeManagerConfiguration.getLoaded().nightTime());
     }
 
     public void tickTime() {
@@ -96,17 +85,15 @@ public class TimeManager extends SavedData {
     }
 
     private static SavedDataType<TimeManager> type(ServerLevel level) {
-        Codec<TimeManager> codec = RecordCodecBuilder.create(instance ->
-                instance.group(
-                        Codec.LONG.validate(TIME_RATE_VALIDATOR).optionalFieldOf("daytime", NORMAL_DAY_TIME).forGetter(manager -> manager.dayTimeRate.duration),
-                        Codec.LONG.validate(TIME_RATE_VALIDATOR).optionalFieldOf("nighttime", NORMAL_NIGHT_TIME).forGetter(manager -> manager.nightTimeRate.duration)
-                ).apply(instance, (dayTimeRate, nightTimeRate) -> new TimeManager(level, dayTimeRate, nightTimeRate))
+        Codec<TimeManager> codec = TimeManagerConfiguration.CODEC.xmap(
+                configuration -> new TimeManager(level, configuration.dayTime(), configuration.nightTime()),
+                manager -> new TimeManagerConfiguration(manager.dayTimeRate.duration, manager.nightTimeRate.duration)
         );
 
         return new SavedDataType<>(TIME_MANAGER_SAVE, () -> new TimeManager(level), codec, null);
     }
 
-    private static boolean invalidTimeRate(long timeRate) {
+    public static boolean invalidTimeRate(long timeRate) {
         return timeRate <= 0;
     }
 
