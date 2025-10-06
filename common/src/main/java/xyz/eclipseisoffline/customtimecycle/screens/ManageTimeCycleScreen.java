@@ -9,7 +9,9 @@ import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringUtil;
+import xyz.eclipseisoffline.customtimecycle.TimeManagerConfiguration;
 
 import java.util.function.Consumer;
 
@@ -19,6 +21,7 @@ public class ManageTimeCycleScreen extends Screen {
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     private final Screen parent;
     private final Consumer<PreconfiguredTimeCycle> doneConsumer;
+    private final boolean global;
 
     private PreconfiguredTimeCycle configured;
 
@@ -27,11 +30,16 @@ public class ManageTimeCycleScreen extends Screen {
 
     private Button done;
 
-    public ManageTimeCycleScreen(Screen parent, PreconfiguredTimeCycle configured, Consumer<PreconfiguredTimeCycle> doneConsumer) {
+    public ManageTimeCycleScreen(Screen parent, PreconfiguredTimeCycle configured, Consumer<PreconfiguredTimeCycle> doneConsumer, boolean global) {
         super(EDIT_TITLE);
         this.parent = parent;
         this.configured = configured;
         this.doneConsumer = doneConsumer;
+        this.global = global;
+    }
+
+    public ManageTimeCycleScreen(Screen parent, Consumer<PreconfiguredTimeCycle> doneConsumer) {
+        this(parent, TimeManagerConfiguration.getLoaded().toPreconfigured(), doneConsumer, true);
     }
 
     @Override
@@ -60,7 +68,8 @@ public class ManageTimeCycleScreen extends Screen {
         nightTime.setResponder(validateTime(true));
         nightTime.setValue(configured.nightTimeInput());
 
-        contents.addChild(new MultiLineTextWidget(Component.translatable("gui.customtimecycle.explanation").withColor(0xFFA0A0A0), font))
+        MutableComponent explanation = global ? Component.translatable("gui.customtimecycle.explanation_global") : Component.translatable("gui.customtimecycle.explanation");
+        contents.addChild(new MultiLineTextWidget(explanation.withColor(0xFFA0A0A0), font))
                 .setMaxWidth(230);
 
         layout.addToContents(contents);

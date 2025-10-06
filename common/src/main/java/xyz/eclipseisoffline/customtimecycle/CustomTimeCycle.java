@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 import org.slf4j.Logger;
 import xyz.eclipseisoffline.customtimecycle.TimeManager.DayPartTimeRate;
+import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 public interface CustomTimeCycle {
 
@@ -26,6 +27,10 @@ public interface CustomTimeCycle {
     default void initialise() {
         LOGGER.info("Custom Time Cycle initialising, reading configuration");
         TimeManagerConfiguration.load(getConfigDir().resolve(CONFIG_FILE));
+    }
+
+    default void saveConfiguration(PreconfiguredTimeCycle timeCycle) {
+        TimeManagerConfiguration.loadFromPreconfigured(getConfigDir().resolve(CONFIG_FILE), timeCycle);
     }
 
     default void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -83,7 +88,9 @@ public interface CustomTimeCycle {
         );
     }
 
-    Predicate<CommandSourceStack> checkPermission(String permission, int operatorLevel);
+    default Predicate<CommandSourceStack> checkPermission(String permission, int operatorLevel) {
+        return source -> source.hasPermission(operatorLevel);
+    }
 
     Path getConfigDir();
 }

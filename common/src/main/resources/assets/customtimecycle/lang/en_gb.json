@@ -1,0 +1,11 @@
+{
+  "gui.customtimecycle.day_input": "Day duration",
+  "gui.customtimecycle.day_input_label": "Day duration (currently %s):",
+  "gui.customtimecycle.edit_button": "Time Cycle",
+  "gui.customtimecycle.edit_title": "Edit Time Cycle",
+  "gui.customtimecycle.explanation": "You can customise the day and night durations of your world here. The same format as in the /time command is used: 1 or 1t is 1 game tick, 1s is 1 second, and 1d is 1 full Minecraft day and night. In vanilla worlds, a Minecraft day takes 0.5d (10 minutes, 600s), and a Minecraft night also takes 0.5d.",
+  "gui.customtimecycle.explanation_global": "You can customise the default day and night durations of your new worlds here. The same format as in the /time command is used: 1 or 1t is 1 game tick, 1s is 1 second, and 1d is 1 full Minecraft day and night. In vanilla worlds, a Minecraft day takes 0.5d (10 minutes, 600s), and a Minecraft night also takes 0.5d.",
+  "gui.customtimecycle.invalid": "invalid",
+  "gui.customtimecycle.night_input": "Day duration",
+  "gui.customtimecycle.night_input_label": "Night duration (currently %s):"
+}
