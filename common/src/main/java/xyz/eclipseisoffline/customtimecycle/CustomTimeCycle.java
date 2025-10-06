@@ -4,19 +4,29 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Path;
 import java.util.function.Predicate;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
+import org.slf4j.Logger;
 import xyz.eclipseisoffline.customtimecycle.TimeManager.DayPartTimeRate;
 
 public interface CustomTimeCycle {
 
+    Logger LOGGER = LogUtils.getLogger();
     String MOD_ID = "customtimecycle";
     String COMMAND_PERMISSION = "command";
+    Path CONFIG_FILE = Path.of(MOD_ID + ".json");
+
+    default void initialise() {
+        LOGGER.info("Custom Time Cycle initialising, reading configuration");
+        TimeManagerConfiguration.load(getConfigDir().resolve(CONFIG_FILE));
+    }
 
     default void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
@@ -39,7 +49,7 @@ public interface CustomTimeCycle {
                                     }
 
                                     String dayTimeDuration = StringUtil.formatTickDuration(
-                                            (int) timeManager.getDayTimeRate().getDuration(), 20);
+                                            (int) timeManager.getDayTimeRate().getDuration(), 20); //FIXME
                                     String nightTimeDuration = StringUtil.formatTickDuration(
                                             (int) timeManager.getNightTimeRate().getDuration(), 20);
                                     context.getSource().sendSuccess(() -> Component.literal("Day time duration: " + dayTimeDuration), false);
@@ -74,4 +84,6 @@ public interface CustomTimeCycle {
     }
 
     Predicate<CommandSourceStack> checkPermission(String permission, int operatorLevel);
+
+    Path getConfigDir();
 }

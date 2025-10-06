@@ -1,5 +1,6 @@
 package xyz.eclipseisoffline.customtimecycle;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
@@ -10,17 +11,21 @@ import org.jetbrains.annotations.NotNull;
 
 public class TimeManager extends SavedData {
     private static final String TIME_MANAGER_SAVE = "timemanager";
-    private static final long NORMAL_DAY_TIME = 12000;
-    private static final long NORMAL_NIGHT_TIME = 12000;
+    public static final long NORMAL_DAY_TIME = 12000;
+    public static final long NORMAL_NIGHT_TIME = 12000;
 
     private final ServerLevel level;
     private DayPartTimeRate dayTimeRate;
     private DayPartTimeRate nightTimeRate;
 
-    public TimeManager(ServerLevel level) {
+    private TimeManager(ServerLevel level, long dayTimeRate, long nightTimeRate) {
         this.level = level;
-        dayTimeRate = new DayPartTimeRate(NORMAL_DAY_TIME, NORMAL_DAY_TIME);
-        nightTimeRate = new DayPartTimeRate(NORMAL_NIGHT_TIME, NORMAL_NIGHT_TIME);
+        this.dayTimeRate = new DayPartTimeRate(dayTimeRate, NORMAL_DAY_TIME);
+        this.nightTimeRate = new DayPartTimeRate(nightTimeRate, NORMAL_NIGHT_TIME);
+    }
+
+    private TimeManager(ServerLevel level) {
+        this(level, TimeManagerConfiguration.getLoaded().dayTime(), TimeManagerConfiguration.getLoaded().nightTime());
     }
 
     public void tickTime() {
@@ -60,19 +65,17 @@ public class TimeManager extends SavedData {
         if (invalidTimeRate(dayTimeRate) || invalidTimeRate(nightTimeRate)) {
             throw new IllegalArgumentException("Invalid time rate");
         }
-        setTimeRate(dayTimeRate, nightTimeRate, true);
+        actuallySetTimeRate(dayTimeRate, nightTimeRate);
     }
 
     public void resetTimeRate() {
-        setTimeRate(NORMAL_DAY_TIME, NORMAL_NIGHT_TIME);
+        actuallySetTimeRate(NORMAL_DAY_TIME, NORMAL_NIGHT_TIME);
     }
 
-    private void setTimeRate(long dayTimeRate, long nightTimeRate, boolean dirty) {
+    private void actuallySetTimeRate(long dayTimeRate, long nightTimeRate) {
         this.dayTimeRate = new DayPartTimeRate(dayTimeRate, NORMAL_DAY_TIME);
         this.nightTimeRate = new DayPartTimeRate(nightTimeRate, NORMAL_NIGHT_TIME);
-        if (dirty) {
-            setDirty();
-        }
+        setDirty();
     }
 
     public boolean isDay() {
@@ -113,7 +116,7 @@ public class TimeManager extends SavedData {
         return compoundTag;
     }
 
-    private static boolean invalidTimeRate(long timeRate) {
+    public static boolean invalidTimeRate(long timeRate) {
         return timeRate <= 0;
     }
 
