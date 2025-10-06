@@ -1,5 +1,5 @@
 [versions]
-multimod = "0.1.1-SNAPSHOT"
+multimod = "0.1.2-SNAPSHOT"
 
 minecraft = "1.21.9"
 neoform = "20250930.151910"
