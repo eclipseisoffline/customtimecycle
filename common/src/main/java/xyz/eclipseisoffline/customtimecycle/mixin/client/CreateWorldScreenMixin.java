@@ -9,7 +9,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.storage.PrimaryLevelData;
+import net.minecraft.world.level.storage.WorldData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,8 +30,8 @@ public abstract class CreateWorldScreenMixin extends Screen {
         super(title);
     }
 
-    @Inject(method = "onCreate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/worldselection/WorldOpenFlows;confirmWorldCreation(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;Lcom/mojang/serialization/Lifecycle;Ljava/lang/Runnable;Z)V"))
-    public void setPreconfiguredTimeCycle(CallbackInfo callbackInfo, @Local PrimaryLevelData levelData) {
+    @Inject(method = "createNewWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;createWorldOpenFlows()Lnet/minecraft/client/gui/screens/worldselection/WorldOpenFlows;"))
+    public void setPreconfiguredTimeCycle(CallbackInfo callbackInfo, @Local WorldData levelData) {
         ((TimeCycleState) levelData).customTimeCycle$setPreconfiguredTimeCycle(((TimeCycleState) uiState).customTimeCycle$getPreconfiguredTimeCycle());
     }
 

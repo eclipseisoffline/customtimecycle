@@ -3,6 +3,7 @@ package xyz.eclipseisoffline.customtimecycle;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -87,37 +88,25 @@ public class TimeManager extends SavedData {
         return level.getDataStorage().computeIfAbsent(TimeManager.timeManagerFactory(level), TIME_MANAGER_SAVE);
     }
 
-    public static SavedData.Factory<TimeManager> timeManagerFactory(ServerLevel level) {
-        return new Factory<>(() -> new TimeManager(level), (tag, provider) -> TimeManager.read(level, tag), null);
-    }
-
     public static void setInstance(ServerLevel level, PreconfiguredTimeCycle preconfigured) {
-        level.getDataStorage().set(type(level), new TimeManager(level, preconfigured.dayTime(), preconfigured.nightTime()));
+        level.getDataStorage().set(TIME_MANAGER_SAVE, new TimeManager(level, preconfigured.dayTime(), preconfigured.nightTime()));
     }
 
-    private static TimeManager read(ServerLevel level, CompoundTag compoundTag) {
-        TimeManager manager = new TimeManager(level);
-        long daytime = compoundTag.getLong("daytime");
-        long nighttime = compoundTag.getLong("nighttime");
+    public static SavedData.Factory<TimeManager> timeManagerFactory(ServerLevel level) {
+        return new Factory<>(() -> new TimeManager(level),
+                (tag, provider) -> createCodec(level).parse(NbtOps.INSTANCE, tag).getOrThrow(), null);
+    }
 
-        boolean dirty = false;
-        if (invalidTimeRate(daytime)) {
-            daytime = NORMAL_DAY_TIME;
-            dirty = true;
-        }
-        if (invalidTimeRate(nighttime)) {
-            nighttime = NORMAL_NIGHT_TIME;
-            dirty = true;
-        }
-
-        manager.setTimeRate(daytime, nighttime, dirty);
-        return manager;
+    private static Codec<TimeManager> createCodec(ServerLevel level) {
+        return TimeManagerConfiguration.CODEC.xmap(
+                configuration -> new TimeManager(level, configuration.dayTime(), configuration.nightTime()),
+                manager -> new TimeManagerConfiguration(manager.dayTimeRate.duration, manager.nightTimeRate.duration)
+        );
     }
 
     @Override
-    public @NotNull CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
-        compoundTag.putLong("daytime", dayTimeRate.duration);
-        compoundTag.putLong("nighttime", nightTimeRate.duration);
+    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, HolderLookup.@NotNull Provider provider) {
+        createCodec(level).encode(this, NbtOps.INSTANCE, compoundTag);
         return compoundTag;
     }
 

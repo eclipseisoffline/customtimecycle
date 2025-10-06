@@ -19,7 +19,7 @@ public class CustomTimeCycleNeoForge extends CustomTimeCycle {
     private final PermissionNode<Boolean> commandPermission;
 
     public CustomTimeCycleNeoForge() {
-        initialise(FMLLoader.getCurrent().getDist() == Dist.CLIENT);
+        initialise(FMLLoader.getDist() == Dist.CLIENT);
 
         NeoForge.EVENT_BUS.addListener(this::registerPermissionNodesEvent);
         NeoForge.EVENT_BUS.addListener(this::registerCommandsEvent);
@@ -43,6 +43,6 @@ public class CustomTimeCycleNeoForge extends CustomTimeCycle {
 
     @Override
     public Path getConfigDir() {
-        return FMLLoader.getCurrent().getGameDir().resolve("config");
+        return FMLLoader.getGamePath().resolve("config");
     }
 }
