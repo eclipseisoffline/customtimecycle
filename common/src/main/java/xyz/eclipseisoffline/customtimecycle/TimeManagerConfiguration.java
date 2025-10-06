@@ -43,6 +43,14 @@ public record TimeManagerConfiguration(long dayTime, long nightTime) {
         return new PreconfiguredTimeCycle(String.valueOf(dayTime), String.valueOf(nightTime), (int) dayTime, (int) nightTime);
     }
 
+    private void save(Path path) {
+        try {
+            Files.writeString(path, GSON.toJson(CODEC.encodeStart(JsonOps.INSTANCE, loaded).getOrThrow()));
+        } catch (IOException exception) {
+            CustomTimeCycle.LOGGER.warn("Failed to write default config file!", exception);
+        }
+    }
+
     public static void load(Path path) {
         if (loaded != null) {
             return;
@@ -64,12 +72,13 @@ public record TimeManagerConfiguration(long dayTime, long nightTime) {
             }
         } else {
             CustomTimeCycle.LOGGER.info("Configuration not found, writing default one");
-            try {
-                Files.writeString(path, GSON.toJson(CODEC.encodeStart(JsonOps.INSTANCE, loaded).getOrThrow()));
-            } catch (IOException exception) {
-                CustomTimeCycle.LOGGER.warn("Failed to write default config file!", exception);
-            }
+            loaded.save(path);
         }
+    }
+
+    public static void loadFromPreconfigured(Path path, PreconfiguredTimeCycle timeCycle) {
+        loaded = new TimeManagerConfiguration(timeCycle.dayTime(), timeCycle.nightTime());
+        loaded.save(path);
     }
 
     public static TimeManagerConfiguration getLoaded() {
