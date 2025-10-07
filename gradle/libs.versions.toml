@@ -1,25 +1,25 @@
 [versions]
 multimod = "0.1.5-SNAPSHOT"
 
-minecraft = "1.21.9"
-neoform = "20250930.151910"
-parchment = "2025.09.14"
+minecraft = "1.21.10"
+neoform = "20251007.142004"
+parchment = "2025.10.05"
 
 minecraft-supported-fabric = ">=1.21.9 <=1.21.10"
 minecraft-supported-neoforge = "[1.21.9, 1.21.10]"
 
-fabric-api = "0.134.0+1.21.9"
+fabric-api = "0.134.1+1.21.10"
 fabric-permissions-api = "0.5.0"
 fabric-modmenu = "16.0.0-rc.1"
 
 neoforge = "21.9.15-beta"
 supported-neoforge = "[21.9,21.10,)"
 
-minecraft-release = "1.21.9"
+minecraft-release = "1.21.9,1.21.10"
 
 [libraries]
 minecraft = {group = "com.mojang", name = "minecraft", version.ref = "minecraft"}
-parchment = {group = "org.parchmentmc.data", name = "parchment-1.21.8", version.ref = "parchment"}
+parchment = {group = "org.parchmentmc.data", name = "parchment-1.21.9", version.ref = "parchment"}
 fabric-api = {group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabric-api"}
 fabric-permissions-api = {group = "me.lucko", name = "fabric-permissions-api", version.ref = "fabric-permissions-api"}
 fabric-modmenu = {group = "com.terraformersmc", name = "modmenu", version.ref = "fabric-modmenu"}
