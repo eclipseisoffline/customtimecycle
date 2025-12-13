@@ -106,8 +106,7 @@ public class TimeManager extends SavedData {
 
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, HolderLookup.@NotNull Provider provider) {
-        createCodec(level).encode(this, NbtOps.INSTANCE, compoundTag);
-        return compoundTag;
+        return (CompoundTag) createCodec(level).encode(this, NbtOps.INSTANCE, compoundTag).getOrThrow();
     }
 
     public static boolean invalidTimeRate(long timeRate) {

@@ -1,6 +1,1 @@
-- Added a world configuration screen that allows setting the time cycle of a singleplayer world upon creating it.
-- Added a similar configuration screen that allows setting the time cycle of all new created singleplayer worlds.
-  - Accessible through Fabric's ModMenu mod or NeoForge's built-in mod menu.
-- Added a configuration file for modpacks to set a default time cycle.
-- Ported mod to NeoForge.
-- Marked support for 1.21.10.
+- Fixed custom time cycle settings in a world not saving properly.
