@@ -1,6 +1,8 @@
 package xyz.eclipseisoffline.customtimecycle;
 
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.permissions.PermissionCheck;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLLoader;
@@ -36,9 +38,9 @@ public class CustomTimeCycleNeoForge extends CustomTimeCycle {
     }
 
     @Override
-    public Predicate<CommandSourceStack> checkPermission(String permission, int operatorLevel) {
-        return source -> source.hasPermission(operatorLevel)
-                || (source.getPlayer() != null && PermissionAPI.getPermission(source.getPlayer(), commandPermission));
+    public Predicate<CommandSourceStack> checkPermission(String permission, PermissionCheck vanillaFallback) {
+        return source -> Commands.hasPermission(vanillaFallback).test(source)
+                || source.getPlayer() != null && PermissionAPI.getPermission(source.getPlayer(), commandPermission);
     }
 
     @Override

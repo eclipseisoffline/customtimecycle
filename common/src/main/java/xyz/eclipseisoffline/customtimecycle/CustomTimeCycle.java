@@ -12,6 +12,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.permissions.PermissionCheck;
 import net.minecraft.util.StringUtil;
 import org.slf4j.Logger;
 import xyz.eclipseisoffline.customtimecycle.TimeManager.DayPartTimeRate;
@@ -41,7 +42,7 @@ public abstract class CustomTimeCycle {
     public void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("timecycle")
-                        .requires(checkPermission(MOD_ID + "." + COMMAND_PERMISSION, 2))
+                        .requires(checkPermission(MOD_ID + "." + COMMAND_PERMISSION, Commands.LEVEL_GAMEMASTERS))
                         .then(Commands.literal("status")
                                 .executes(context -> {
                                     TimeManager timeManager = TimeManager.getInstance(context.getSource().getLevel());
@@ -93,8 +94,8 @@ public abstract class CustomTimeCycle {
         );
     }
 
-    public Predicate<CommandSourceStack> checkPermission(String permission, int operatorLevel) {
-        return source -> source.hasPermission(operatorLevel);
+    public Predicate<CommandSourceStack> checkPermission(String permission, PermissionCheck vanillaFallback) {
+        return Commands.hasPermission(vanillaFallback);
     }
 
     public abstract Path getConfigDir();

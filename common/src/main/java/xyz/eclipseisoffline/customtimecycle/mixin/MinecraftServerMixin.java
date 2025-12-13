@@ -24,7 +24,7 @@ public abstract class MinecraftServerMixin {
     @Final
     protected WorldData worldData;
 
-    @Inject(method = "createLevels", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;readScoreboard(Lnet/minecraft/world/level/storage/DimensionDataStorage;)V"))
+    @Inject(method = "createLevels", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/ServerScoreboard;load(Lnet/minecraft/world/scores/ScoreboardSaveData$Packed;)V"))
     public void applyCustomTime(CallbackInfo callbackInfo, @Local ServerLevel level) {
         if (worldData instanceof TimeCycleState preconfiguredState) {
             PreconfiguredTimeCycle preconfigured = preconfiguredState.customTimeCycle$getPreconfiguredTimeCycle();
