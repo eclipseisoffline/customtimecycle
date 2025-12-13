@@ -117,3 +117,7 @@ This mod simply changes the rate the *day time* counter increments at, and by ho
     > Incrementing 1 time ticks every 2 server ticks
 
 If you want to read more about the way Minecraft time works, I recommend [this](https://minecraft.wiki/w/Daylight_cycle) page on the Minecraft wiki.
+
+Please note: Minecraft 1.21.11 introduced a new concept called [timelines](https://minecraft.wiki/w/Timeline). Since timelines
+operate on the *day time* counter, which this mod modifies, running a faster or slower time cycle changes the rate at which
+timelines progress.
