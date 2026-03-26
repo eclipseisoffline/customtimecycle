@@ -4,7 +4,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.clock.ClockTimeMarker;
 import net.minecraft.world.clock.WorldClock;
-import xyz.eclipseisoffline.customtimecycle.ClockRateManager;
 
 import java.util.List;
 

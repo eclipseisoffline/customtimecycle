@@ -24,6 +24,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.clock.ClockTimeMarker;
 import net.minecraft.world.clock.ClockTimeMarkers;
 import net.minecraft.world.clock.WorldClock;
+import xyz.eclipseisoffline.customtimecycle.clock.ClockRateManager;
 import xyz.eclipseisoffline.customtimecycle.clock.CustomTimeCycleClockMarkers;
 import xyz.eclipseisoffline.customtimecycle.clock.ServerClockManagerUtil;
 import xyz.eclipseisoffline.customtimecycle.mixin.TimeCommandAccessor;

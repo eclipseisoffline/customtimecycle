@@ -1,4 +1,4 @@
-package xyz.eclipseisoffline.customtimecycle;
+package xyz.eclipseisoffline.customtimecycle.clock;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
@@ -10,6 +10,7 @@ import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import org.jspecify.annotations.Nullable;
+import xyz.eclipseisoffline.customtimecycle.CustomTimeCycle;
 
 import java.util.Collections;
 import java.util.HashMap;

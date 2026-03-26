@@ -21,7 +21,6 @@
   "icon": "assets/${mod_id}/icon.png",
   "environment": "*",
   "entrypoints": {
-    "client": [],
     "main": [
       "xyz.eclipseisoffline.customtimecycle.fabric.CustomTimeCycleFabric"
     ],
