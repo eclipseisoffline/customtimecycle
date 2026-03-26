@@ -4,19 +4,27 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.clock.ClockTimeMarker;
 import net.minecraft.world.clock.ClockTimeMarkers;
 import net.minecraft.world.clock.WorldClock;
+import xyz.eclipseisoffline.customtimecycle.clock.ServerClockManagerUtil;
 import xyz.eclipseisoffline.customtimecycle.mixin.TimeCommandAccessor;
 
 public class TimeCycleCommand {
+    private static final DynamicCommandExceptionType ERROR_NOT_A_PERIODIC_CLOCK = new DynamicCommandExceptionType(clock -> Component.literal("Clock " + clock + " is not periodic"));
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("timecycle")
@@ -29,27 +37,78 @@ public class TimeCycleCommand {
         return root
                 .then(Commands.literal("status")
                         .executes(context -> {
-                            return 0; // TODO
+                            ClockRateManager rateManager = ClockRateManager.getInstance(context.getSource().getServer());
+                            Holder<WorldClock> clock = clockGetter.getPeriodicClock(context);
+                            MutableComponent feedback = Component.literal("The following rates are set for clock " + clock.getRegisteredName() + ":");
+
+                            context.getSource().getServer().clockManager().commandTimeMarkersForClock(clock)
+                                    .forEach(marker -> {
+                                        feedback.append("\nAt " + marker.identifier() + ": " + rateManager.getClockRate(clock, marker));
+                                    });
+
+                            context.getSource().sendSuccess(() -> feedback, false);
+                            return 0;
                         })
                 )
-                .then(Commands.literal("rate")
-                        .then(Commands.literal("at")
-                                .then(Commands.argument("timemarker", IdentifierArgument.id())
-                                        .suggests((c, p) -> TimeCommandAccessor.suggestTimeMarkers(c.getSource(), p, clockGetter.getClock(c)))
-                                        .then(Commands.argument("rate", FloatArgumentType.floatArg(1.0E-5F, 1000.0F))
-                                                .executes(context -> {
-                                                    ResourceKey<ClockTimeMarker> marker = ResourceKey.create(ClockTimeMarkers.ROOT_ID, IdentifierArgument.getId(context, "timemarker"));
-                                                    float rate = FloatArgumentType.getFloat(context, "rate");
-                                                    ClockRateManager.getInstance(context.getSource().getServer()).setRateForClockAtMarker(clockGetter.getClock(context), marker, rate);
-                                                    return 0;
-                                                })
+                .then(Commands.literal("set")
+                        .then(Commands.literal("from")
+                                .then(periodicTimeMarkerArgument("from", clockGetter)
+                                        .then(Commands.literal("to")
+                                                .then(periodicTimeMarkerArgument("to", clockGetter)
+                                                        .then(Commands.literal("duration")
+                                                                .then(Commands.argument("duration", TimeArgument.time(1))
+                                                                        .executes(context -> {
+                                                                            // TODO
+                                                                            return 0;
+                                                                        })
+                                                                )
+                                                        )
+                                                        .then(Commands.literal("rate")
+                                                                .then(Commands.argument("rate", FloatArgumentType.floatArg(1.0E-5F, 1000.0F))
+                                                                        .executes(context -> {
+                                                                            // TODO
+                                                                            ResourceKey<ClockTimeMarker> marker = ResourceKey.create(ClockTimeMarkers.ROOT_ID, IdentifierArgument.getId(context, "timemarker"));
+                                                                            float rate = FloatArgumentType.getFloat(context, "rate");
+                                                                            ClockRateManager.getInstance(context.getSource().getServer()).setRateForClockAtMarker(clockGetter.getPeriodicClock(context), marker, rate);
+                                                                            return 0;
+                                                                        })
+                                                                )
+                                                        )
+                                                )
                                         )
                                 )
                         )
+                )
+                .then(Commands.literal("reset")
+                        .executes(context -> {
+                            Holder<WorldClock> clock = clockGetter.getPeriodicClock(context);
+                            ClockRateManager.getInstance(context.getSource().getServer()).resetRatesForClock(clock);
+                            context.getSource().sendSuccess(() -> Component.literal("Reset rates for clock " + clock.getRegisteredName()), true);
+                            return 0;
+                        })
                 );
     }
 
+    private static RequiredArgumentBuilder<CommandSourceStack, Identifier> periodicTimeMarkerArgument(String name, ClockGetter clockGetter) {
+        return Commands.argument(name, IdentifierArgument.id())
+                .suggests((c, builder) -> TimeCommandAccessor.suggestTimeMarkers(c.getSource(), builder, clockGetter.getPeriodicClock(c)));
+    }
+
+    private static ResourceKey<ClockTimeMarker> getTimeMarker(CommandContext<CommandSourceStack> context, String argumentName) {
+        return ResourceKey.create(ClockTimeMarkers.ROOT_ID, IdentifierArgument.getId(context, argumentName));
+    }
+
+    @FunctionalInterface
     private interface ClockGetter {
+
         Holder<WorldClock> getClock(CommandContext<CommandSourceStack> context) throws CommandSyntaxException;
+
+        default Holder<WorldClock> getPeriodicClock(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+            Holder<WorldClock> clock = getClock(context);
+            if (!((ServerClockManagerUtil) context.getSource().getServer().clockManager()).customTimeCycle$isPeriodicClock(clock)) {
+                throw ERROR_NOT_A_PERIODIC_CLOCK.create(clock.getRegisteredName());
+            }
+            return clock;
+        }
     }
 }

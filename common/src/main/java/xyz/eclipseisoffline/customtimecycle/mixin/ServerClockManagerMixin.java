@@ -21,12 +21,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.eclipseisoffline.customtimecycle.ClockRateManager;
 import xyz.eclipseisoffline.customtimecycle.clock.ClockInstanceRateManager;
+import xyz.eclipseisoffline.customtimecycle.clock.ServerClockManagerUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Mixin(ServerClockManager.class)
-public abstract class ServerClockManagerMixin extends SavedData implements ClockManager {
+public abstract class ServerClockManagerMixin extends SavedData implements ClockManager, ServerClockManagerUtil {
 
     @Shadow
     @Final
@@ -37,6 +38,14 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
 
     @Shadow
     protected abstract long getGameTime();
+
+    @Shadow
+    protected abstract Object getInstance(Holder<WorldClock> definition);
+
+    @Override
+    public boolean customTimeCycle$isPeriodicClock(Holder<WorldClock> clock) {
+        return ((ClockInstanceRateManager) getInstance(clock)).customTimeCycle$hasPeriodicMarker();
+    }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Collection;forEach(Ljava/util/function/Consumer;)V"))
     public void calculateManagedRateForClocks(CallbackInfo callbackInfo) {
@@ -70,6 +79,11 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
         @ModifyExpressionValue(method = {"tick", "packNetworkState"}, at = @At(value = "FIELD", target = "Lnet/minecraft/world/clock/ServerClockManager$ClockInstance;rate:F"))
         public float multiplyRateByManagedValue(float original) {
             return original * customTimeCycle$rateMultiplier;
+        }
+
+        @Override
+        public boolean customTimeCycle$hasPeriodicMarker() {
+            return timeMarkers.values().stream().anyMatch(marker -> marker.periodTicks().isPresent());
         }
 
         @Override

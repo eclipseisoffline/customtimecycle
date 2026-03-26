@@ -8,6 +8,8 @@ import org.jspecify.annotations.Nullable;
 
 public interface ClockInstanceRateManager {
 
+    boolean customTimeCycle$hasPeriodicMarker();
+
     boolean customTimeCycle$setRateMultiplier(float rateMultiplier);
 
     @Nullable ResourceKey<ClockTimeMarker> customTimeCycle$getLastMarker(boolean commandsOnly);

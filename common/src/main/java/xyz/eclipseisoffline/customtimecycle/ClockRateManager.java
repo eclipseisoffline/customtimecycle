@@ -31,6 +31,11 @@ public class ClockRateManager extends SavedData {
         setDirty();
     }
 
+    public void resetRatesForClock(Holder<WorldClock> clock) {
+        clockRateSteps.remove(clock);
+        setDirty();
+    }
+
     public float getClockRate(Holder<WorldClock> clock, @Nullable ResourceKey<ClockTimeMarker> lastMarker) {
         if (lastMarker == null) {
             return 1.0F;
