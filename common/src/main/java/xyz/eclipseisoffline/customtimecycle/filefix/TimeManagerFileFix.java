@@ -8,6 +8,7 @@ import net.minecraft.util.filefix.FileFix;
 import net.minecraft.util.filefix.access.FileAccess;
 import net.minecraft.util.filefix.access.FileRelation;
 import net.minecraft.util.filefix.access.FileResourceType;
+import net.minecraft.util.filefix.operations.FileFixOperations;
 import net.minecraft.util.worldupdate.UpgradeProgress;
 import xyz.eclipseisoffline.filefixutils.api.FileFixHelpers;
 
@@ -32,7 +33,6 @@ public class TimeManagerFileFix extends FileFix {
             return progress -> {
                 progress.setType(UpgradeProgress.Type.FILES);
 
-                // TODO other dimensions
                 TimeManagerNbt managerFile = timeManagerNbtFiles.getOnlyFile();
                 Optional<Dynamic<Tag>> optionalNbt = managerFile.read();
                 if (optionalNbt.isPresent()) {
@@ -61,5 +61,11 @@ public class TimeManagerFileFix extends FileFix {
             };
         });
         addFileFixOperation(FileFixHelpers.createGlobalDataMoveOperation("timemanager", Identifier.fromNamespaceAndPath("customtimecycle", "clock_rates")));
+
+        // Just remove the data for other dimensions - yes, this does mean that some data is lost, but it is nearly impossible to properly convert these,
+        // since we don't know which clocks these apply to
+        addFileFixOperation(FileFixOperations.applyInFolders(FileRelation.DIMENSIONS_DATA, List.of(FileFixOperations.delete("timemanager.dat"))));
+        addFileFixOperation(FileFixOperations.applyInFolders(FileRelation.OLD_NETHER.resolve(FileRelation.DATA), List.of(FileFixOperations.delete("timemanager.dat"))));
+        addFileFixOperation(FileFixOperations.applyInFolders(FileRelation.OLD_END.resolve(FileRelation.DATA), List.of(FileFixOperations.delete("timemanager.dat"))));
     }
 }
