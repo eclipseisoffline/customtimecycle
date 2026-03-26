@@ -13,6 +13,12 @@ Custom Time Cycle is a mod that allows changing the duration of Minecraft days a
 command, without changing tick speed. It is available for both Fabric and NeoForge. It can be used on servers (without
 being required on player clients), and in singleplayer.
 
+Since Minecraft 26.1, Custom Time Cycle allows changing the duration/rate of change between every time marker for a clock, which are 
+data-driven. This allows very granular control over the rate at which time for a clock progresses.
+
+The mod also applies a small fix to villager behaviour, so that they still properly spawn iron golems with longer day/night durations
+than vanilla.
+
 ## License
 
 This mod is licensed under GNU LGPLv3.
@@ -29,18 +35,19 @@ For support and/or any questions you may have, feel free to join [my discord](ht
 
 | Minecraft Version | Status       |
 |-------------------|--------------|
-| 1.21.11           | ✅ Current    |
+| 26.1              | ✅ Current    |
+| 1.21.11           | ✔️ Available |
 | 1.21.9+10         | ✔️ Available |
 | 1.21.6+7+8        | ✔️ Available |
 | 1.21.5            | ✔️ Available |
 | 1.21.4            | ✔️ Available |
 | 1.21.2+3          | ✔️ Available |
-| 1.21+1            | ✅ Current    |
+| 1.21+1            | ✔️ Available |
 | 1.20.5+6          | ✔️ Available |
 | 1.20.4            | ✔️ Available |
 | 1.20.1            | ✔️ Available |
 
-I try to keep support up for the latest major and latest minor release of Minecraft. Updates to newer Minecraft
+I try to keep support up for the latest drop of Minecraft. Updates to newer Minecraft
 versions may be delayed from time to time, as I do not always have the time to immediately update my mods.
 
 Unsupported versions are still available to download, but they won't receive new features or bugfixes.
@@ -52,7 +59,7 @@ NeoForge ports are available for Minecraft 1.21+1 and for Minecraft 1.21.9 onwar
 Mod builds can be found on the releases page, as well as on [Modrinth](https://modrinth.com/mod/customtimecycle).
 
 On Fabric, the Fabric API is required. When installed server-side, the mod is not required on clients.
-Durations of days and nights can be configured across dimensions and are saved across server restarts / world saves.
+Durations of time markers can be configured for each periodic world clock and are saved across server restarts / world saves.
 
 For clients, the time cycle of a world can be configured upon creation, by selecting the "More" tab at the top, then
 clicking the "Time Cycle" button. You can also configure default time cycle durations for all new created worlds, in the mod's
@@ -63,11 +70,19 @@ The mod also adds a simple command, `/timecycle`, which can be used to alter the
 Its usage is as follows:
 
 - `/timecycle status`
-  - Shows a simple status message displaying which time durations are currently in use in the current dimension.
+  - Shows a simple status message displaying which time durations and rates are currently in use in the current dimension.
 - `/timecycle set <dayduration> <nightduration>`
   - Modifies the durations of the Minecraft day and night in the current dimension.
+- `/timecycle set from <from> to <to> duration <duration>`
+  - Modifies the duration in ticks between 2 time markers in the current dimension.
+- `/timecycle set from <from> to <to> rate <rate>`
+  - Modifies the rate at which time progresses between 2 time markers in the current dimension.
 - `/timecycle reset`
-  - Resets the durations of the Minecraft day and night in the current dimension.
+  - Resets the rates of all time markers in the current dimension.
+- `/timecycle of <clock> ...`
+  - Allows running all of the above commands, but for that specific clock instead of the one of the current dimension.
+
+The rate modifications the mod makes apply **on top of** the vanilla `/time rate` command.
 
 Using the `/timecycle` command requires the `timecycle.command` permission or operator level 2.
 
@@ -83,41 +98,18 @@ worlds on servers or clients:
 
 ## How it works (technical explanation)
 
-Each Minecraft dimension (also called a *level* within Minecraft's code) has 3 counters related to time:
+Since Minecraft 26.1, the game now has a "clock" concept. In vanilla, there are only 2 clocks, and only 1 that matters here:
+the `minecraft:overworld` clock, for the overworld dimension.
 
-- The *game time* counter:
-  - Is incremented by 1 every server tick, and never resets.
-  - Counts the amount of ticks that have passed in the dimension.
-  - Can be read in-game by using the vanilla `/time query gametime` command.
-- The *day time* counter:
-  - Is incremented by 1 every server tick, and is set back to 0 when it reaches 24000.
-  - Determines the time of day:
-    - When at 0, the sun rises.
-    - When at 6000, the sun is at its peak (noon).
-    - When at 12000, the sun starts to set, and the moon starts to rise.
-    - When at 18000, the moon is at its peak (midnight).
-    - When at 24000, resets to 0, and the sun rises again.
-  - This means a Minecraft day lasts 12000 *day time ticks* and a Minecraft night also lasts 12000 *day time ticks*.
-  - In vanilla Minecraft, 20 server ticks occur every second, meaning one Minecraft day and night together last 20 minutes.
-  - Can be read in-game by using the vanilla `/time query daytime` command.
-- The *day* counter:
-  - Is incremented by 1 every time the *day time* counter resets back to 0, never resets.
-  - Counts the amount of days that have passed in the dimension.
-  - Can be read in-game by using the vanilla `/time query day` command, or in the debug screen (F3) at the `Local Difficulty` line.
+Clocks in Minecraft control [timelines](https://minecraft.wiki/w/Timeline), and can progress at a custom rate, though
+by default, they progress at the same rate as the server's tick rate: 20 ticks per second. In vanilla, this rate can
+be configured for the entire clock, using the `/time rate` command.
 
-This mod simply changes the rate the *day time* counter increments at, and by how much it increments:
+This mod simply allows configuring the rate at which a clock progresses on a [time marker](https://minecraft.wiki/w/Time_Marker)
+basis. Time markers mark a certain moment along the clock, such as `minecraft:day` for the start of the day,
+or `minecraft:midnight` for midnight. You'll have seen these in the `/time set` command too. The mod adds 2 custom time
+markers for the vanilla `minecraft:overworld` clock, `customtimecycle:sunrise` and `customtimecycle:sunset`. These
+are added primarily for legacy reasons, and are used for the `/timecycle set <dayduration> <nightduration>` command.
 
-- For example, if you set the duration of the Minecraft day to 6000 *day time ticks*, the *day time* counter will be incremented twice as fast, so by 2 every server tick.
-  - We can confirm this by running the `/timecycle status` command:
-    > Using day time tick rate (duration=6000)  
-    > Incrementing 2 time ticks every 1 server ticks
-- If you set the duration of the Minecraft day to 24000 *day time ticks*, the *day time* counter will be incremented at half the speed, so by 1 every 2 server ticks.
-  - Once again, we can confirm this by running the `/timecycle status` command:
-    > Using day time rate (duration=24000)  
-    > Incrementing 1 time ticks every 2 server ticks
-
-If you want to read more about the way Minecraft time works, I recommend [this](https://minecraft.wiki/w/Daylight_cycle) page on the Minecraft wiki.
-
-Please note: Minecraft 1.21.11 introduced a new concept called [timelines](https://minecraft.wiki/w/Timeline). Since timelines
-operate on the *day time* counter, which this mod modifies, running a faster or slower time cycle changes the rate at which
-timelines progress.
+As was said before, this mod can work on any clock, as long as it is a periodic one, like `minecraft:overworld`. This makes
+it work well with custom dimensions added by datapacks/mods that use their own clock.
