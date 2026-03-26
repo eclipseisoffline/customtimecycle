@@ -8,6 +8,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.clock.ClockManager;
 import net.minecraft.world.clock.ClockNetworkState;
 import net.minecraft.world.clock.ClockTimeMarker;
+import net.minecraft.world.clock.ClockTimeMarkers;
 import net.minecraft.world.clock.ServerClockManager;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -24,6 +25,7 @@ import xyz.eclipseisoffline.customtimecycle.clock.ClockInstanceUtil;
 import xyz.eclipseisoffline.customtimecycle.clock.ServerClockManagerUtil;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,20 +94,41 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
 
         List<ResourceKey<ClockTimeMarker>> markersBetween = new ArrayList<>();
         if (endTick < startTick) {
-            for (Map.Entry<ResourceKey<ClockTimeMarker>, ClockTimeMarker> marker : timeMarkers.entrySet()) {
-                if ((!commandsOnly || marker.getValue().showInCommands()) && (marker.getValue().ticks() < endTick || marker.getValue().ticks() >= startTick)) {
-                    markersBetween.add(marker.getKey());
+            timeMarkers.forEach((marker, instance) -> {
+                if ((!commandsOnly || instance.showInCommands()) && (instance.ticks() < endTick || instance.ticks() >= startTick)) {
+                    markersBetween.add(marker);
                 }
-            }
+            });
         } else {
-            for (Map.Entry<ResourceKey<ClockTimeMarker>, ClockTimeMarker> marker : timeMarkers.entrySet()) {
-                if ((!commandsOnly || marker.getValue().showInCommands()) && (marker.getValue().ticks() >= startTick && marker.getValue().ticks() < endTick)) {
-                    markersBetween.add(marker.getKey());
+            timeMarkers.forEach((marker, instance) -> {
+                if ((!commandsOnly || instance.showInCommands()) && (instance.ticks() >= startTick && instance.ticks() < endTick)) {
+                    markersBetween.add(marker);
                 }
-            }
+            });
         }
 
         return markersBetween;
+    }
+
+    @Override
+    public int customTimeCycle$getAdjustedPeriodTicks(Holder<WorldClock> clock) {
+        ClockRateManager rateManager = ClockRateManager.getInstance(server);
+        List<Map.Entry<ResourceKey<ClockTimeMarker>, ClockTimeMarker>> sortedMarkers = customTimeCycle$getInstance(clock)
+                .customTimeCycle$getTimeMarkers().entrySet().stream()
+                .sorted(Comparator.comparingInt(entry -> entry.getValue().ticks()))
+                .toList();
+        float totalTime = 0;
+        for (int i = 0; i < sortedMarkers.size(); i++) {
+            int time;
+            if (i == sortedMarkers.size() - 1) {
+                ClockTimeMarker marker = sortedMarkers.get(i).getValue();
+                time = marker.periodTicks().orElseGet(marker::ticks) - marker.ticks();
+            } else {
+                time = sortedMarkers.get(i + 1).getValue().ticks() - sortedMarkers.get(i).getValue().ticks();
+            }
+            totalTime += time / rateManager.getClockRate(clock, sortedMarkers.get(i).getKey());
+        }
+        return (int) totalTime;
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Collection;forEach(Ljava/util/function/Consumer;)V"))

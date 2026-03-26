@@ -21,6 +21,8 @@ public interface ServerClockManagerUtil {
     List<ResourceKey<ClockTimeMarker>> customTimeCycle$getMarkersBetween(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> fromKey, ResourceKey<ClockTimeMarker> toKey,
                                                                          boolean commandsOnly);
 
+    int customTimeCycle$getAdjustedPeriodTicks(Holder<WorldClock> clock);
+
     default void setDurationBetweenMarkers(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> from, ResourceKey<ClockTimeMarker> to, int duration,
                                            ClockRateManager rateManager) {
         int timeBetweenMarkers = customTimeCycle$getTicksBetween(clock, from, to);
