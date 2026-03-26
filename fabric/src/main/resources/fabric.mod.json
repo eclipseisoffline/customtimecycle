@@ -21,12 +21,14 @@
   "icon": "assets/${mod_id}/icon.png",
   "environment": "*",
   "entrypoints": {
-    "client": [],
+    "filefix": [
+      "xyz.eclipseisoffline.customtimecycle.filefix.CustomTimeCycleFileFixes"
+    ],
     "main": [
-      "xyz.eclipseisoffline.customtimecycle.CustomTimeCycleFabric"
+      "xyz.eclipseisoffline.customtimecycle.fabric.CustomTimeCycleFabric"
     ],
     "modmenu": [
-      "xyz.eclipseisoffline.customtimecycle.client.CustomTimeCycleModMenuCompat"
+      "xyz.eclipseisoffline.customtimecycle.fabric.client.CustomTimeCycleModMenuCompat"
     ]
   },
   "mixins": [
@@ -34,9 +36,10 @@
   ],
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
-    "fabric-api": "*",
+    "fabric-api": ">=${fabric_api_version}",
     "minecraft": "${minecraft_version}",
-    "fabric-permissions-api-v0": "*"
+    "commonpermissionsapi": "*",
+    "filefixutils": "*"
   },
   "custom": {
     "modmenu": {

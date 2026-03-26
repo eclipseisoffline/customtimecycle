@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xyz.eclipseisoffline.customtimecycle.TimeManager;
+import xyz.eclipseisoffline.customtimecycle.clock.ServerClockManagerUtil;
 
 @Mixin(Villager.class)
 public abstract class VillagerMixin extends AbstractVillager implements ReputationEventHandler, VillagerDataHolder {
@@ -27,10 +27,11 @@ public abstract class VillagerMixin extends AbstractVillager implements Reputati
     public void checkCustomTimeCycleLength(long gameTime, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         Optional<Long> optional = getBrain().getMemory(MemoryModuleType.LAST_SLEPT);
         if (optional.isPresent() && level() instanceof ServerLevel serverLevel) {
-            TimeManager timeManager = TimeManager.getInstance(serverLevel);
-
-            long dayNightDuration = timeManager.getDayTimeRate().getDuration() + timeManager.getNightTimeRate().getDuration();
-            callbackInfoReturnable.setReturnValue(gameTime - optional.orElseThrow() < dayNightDuration);
+            serverLevel.dimensionType().defaultClock().ifPresent(clock -> {
+                // I think this should work, but I am not entirely sure. Mojang should just fix this themselves at this point
+                long dayNightDuration = ((ServerClockManagerUtil) serverLevel.getServer().clockManager()).customTimeCycle$getAdjustedPeriodTicks(clock);
+                callbackInfoReturnable.setReturnValue(gameTime - optional.orElseThrow() < dayNightDuration);
+            });
         }
     }
 }

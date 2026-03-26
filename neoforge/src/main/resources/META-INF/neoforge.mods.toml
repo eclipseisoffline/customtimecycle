@@ -1,4 +1,4 @@
-license="MIT"
+license="LGPL-3.0-only"
 issueTrackerURL="https://github.com/${github_repository}/issues"
 
 [[mods]]
@@ -13,19 +13,26 @@ description='''${mod_description}'''
 [[mixins]]
 config="customtimecycle.mixins.json"
 
-[[mixins]]
-config="customtimecycle-neoforge.mixins.json"
+[[dependencies]]
+modId="filefixutils"
+type="required"
+side="BOTH"
 
 [[dependencies]]
-    modId="neoforge"
-    type="required"
-    versionRange="${neoforge_version}"
-    ordering="NONE"
-    side="BOTH"
+modId="commonpermissionsapi"
+type="required"
+side="BOTH"
 
 [[dependencies]]
-    modId="minecraft"
-    type="required"
-    versionRange="${neoforge_minecraft_version}"
-    ordering="NONE"
-    side="BOTH"
+modId="neoforge"
+type="required"
+versionRange="${neoforge_version}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies]]
+modId="minecraft"
+type="required"
+versionRange="${neoforge_minecraft_version}"
+ordering="NONE"
+side="BOTH"

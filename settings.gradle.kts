@@ -4,7 +4,7 @@ pluginManagement {
         gradlePluginPortal()
         maven {
             name = "eclipseisoffline"
-            url = uri("https://maven.eclipseisoffline.xyz/snapshots")
+            url = uri("https://maven.eclipseisoffline.xyz/releases")
         }
         maven {
             name = "Fabric"

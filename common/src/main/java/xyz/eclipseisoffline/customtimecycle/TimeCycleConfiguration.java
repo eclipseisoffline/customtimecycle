@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.jspecify.annotations.Nullable;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 import java.io.FileReader;
@@ -16,36 +17,36 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Function;
 
-public record TimeManagerConfiguration(long dayTime, long nightTime) {
+public record TimeCycleConfiguration(int dayTime, int nightTime) {
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .create();
 
-    private static final Function<Long, DataResult<Long>> TIME_RATE_VALIDATOR = timeRate -> {
-        if (TimeManager.invalidTimeRate(timeRate)) {
+    private static final Function<Integer, DataResult<Integer>> TIME_RATE_VALIDATOR = timeRate -> {
+        if (timeRate < 1) {
             return DataResult.error(() -> "Time rate must be at least 1");
         }
         return DataResult.success(timeRate);
     };
-    public static final Codec<TimeManagerConfiguration> CODEC = RecordCodecBuilder.create(instance ->
+    public static final Codec<TimeCycleConfiguration> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    Codec.LONG.validate(TIME_RATE_VALIDATOR).fieldOf("daytime").forGetter(TimeManagerConfiguration::dayTime),
-                    Codec.LONG.validate(TIME_RATE_VALIDATOR).fieldOf("nighttime").forGetter(TimeManagerConfiguration::nightTime)
-            ).apply(instance, TimeManagerConfiguration::new)
+                    Codec.INT.validate(TIME_RATE_VALIDATOR).fieldOf("daytime").forGetter(TimeCycleConfiguration::dayTime),
+                    Codec.INT.validate(TIME_RATE_VALIDATOR).fieldOf("nighttime").forGetter(TimeCycleConfiguration::nightTime)
+            ).apply(instance, TimeCycleConfiguration::new)
     );
-    public static final TimeManagerConfiguration DEFAULT = new TimeManagerConfiguration(TimeManager.NORMAL_DAY_TIME, TimeManager.NORMAL_NIGHT_TIME);
-    private static TimeManagerConfiguration loaded;
+    public static final TimeCycleConfiguration DEFAULT = new TimeCycleConfiguration(12000, 12000);
+    private static @Nullable TimeCycleConfiguration loaded;
 
     public PreconfiguredTimeCycle toPreconfigured() {
         if (equals(DEFAULT)) {
             return PreconfiguredTimeCycle.DEFAULT;
         }
-        return new PreconfiguredTimeCycle(String.valueOf(dayTime), String.valueOf(nightTime), (int) dayTime, (int) nightTime);
+        return new PreconfiguredTimeCycle(String.valueOf(dayTime), String.valueOf(nightTime), dayTime, nightTime);
     }
 
     private void save(Path path) {
         try {
-            Files.writeString(path, GSON.toJson(CODEC.encodeStart(JsonOps.INSTANCE, loaded).getOrThrow()));
+            Files.writeString(path, GSON.toJson(CODEC.encodeStart(JsonOps.INSTANCE, this).getOrThrow()));
         } catch (IOException exception) {
             CustomTimeCycle.LOGGER.warn("Failed to write default config file!", exception);
         }
@@ -77,11 +78,11 @@ public record TimeManagerConfiguration(long dayTime, long nightTime) {
     }
 
     public static void loadFromPreconfigured(Path path, PreconfiguredTimeCycle timeCycle) {
-        loaded = new TimeManagerConfiguration(timeCycle.dayTime(), timeCycle.nightTime());
+        loaded = new TimeCycleConfiguration(timeCycle.dayTime(), timeCycle.nightTime());
         loaded.save(path);
     }
 
-    public static TimeManagerConfiguration getLoaded() {
+    public static TimeCycleConfiguration getLoaded() {
         if (loaded == null) {
             throw new IllegalStateException("Configuration accessed before it was loaded");
         }
