@@ -12,3 +12,7 @@
     - **Time cycle data for other, custom dimensions is lost. Make sure to take backups!**
 
 **Please make sure to properly back up your world when updating! Minecraft 26.1 changes the structure of Minecraft worlds a lot, and while this mod has adjusted for that, I cannot guarantee that no data loss will happen!**
+
+I apologise to those losing time cycle data for custom dimensions, hopefully this will not be too much for you to deal with.
+I did my best to migrate all data, but unfortunately it was nearly impossible to properly handle these cases, due to the way
+the game is coded. Thank you for your understanding.
