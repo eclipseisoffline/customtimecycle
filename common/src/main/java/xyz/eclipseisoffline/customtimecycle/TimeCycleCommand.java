@@ -10,11 +10,14 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -32,11 +35,17 @@ public class TimeCycleCommand {
     private static final Dynamic3CommandExceptionType ERROR_INVALID_TIME_MARKER = new Dynamic3CommandExceptionType((clock, timeMarker1, timeMarker2)
             -> Component.literal("Invalid time marker " + timeMarker1 + " or " + timeMarker2 + " for clock " + clock));
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext) {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("timecycle")
                 //.requires(); TODO
         ;
         dispatcher.register(addClockCommands(root, context -> TimeCommandAccessor.getDefaultClock(context.getSource())));
+        dispatcher.register(root
+                .then(Commands.literal("of")
+                        .then(addClockCommands(Commands.argument("clock", ResourceArgument.resource(buildContext, Registries.WORLD_CLOCK)),
+                                context -> ResourceArgument.getClock(context, "clock")))
+                )
+        );
     }
 
     private static <A extends ArgumentBuilder<CommandSourceStack, A>> A addClockCommands(A root, ClockGetter clockGetter) {

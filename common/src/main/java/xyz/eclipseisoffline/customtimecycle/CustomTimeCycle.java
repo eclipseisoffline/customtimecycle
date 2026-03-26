@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.function.Predicate;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.TimeArgument;
@@ -40,8 +41,8 @@ public abstract class CustomTimeCycle {
         TimeManagerConfiguration.loadFromPreconfigured(getConfigDir().resolve(CONFIG_FILE), timeCycle);
     }
 
-    public void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
-        TimeCycleCommand.register(dispatcher);
+    public void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext) {
+        TimeCycleCommand.register(dispatcher, buildContext);
         /*dispatcher.register(
                 Commands.literal("timecycle")
                         .requires(checkPermission(MOD_ID + "." + COMMAND_PERMISSION, Commands.LEVEL_GAMEMASTERS))

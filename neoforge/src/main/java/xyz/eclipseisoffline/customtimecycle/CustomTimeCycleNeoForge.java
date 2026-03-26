@@ -34,7 +34,7 @@ public class CustomTimeCycleNeoForge extends CustomTimeCycle {
     }
 
     private void registerCommandsEvent(RegisterCommandsEvent event) {
-        registerCommand(event.getDispatcher());
+        registerCommand(event.getDispatcher(), event.getBuildContext());
     }
 
     @Override
