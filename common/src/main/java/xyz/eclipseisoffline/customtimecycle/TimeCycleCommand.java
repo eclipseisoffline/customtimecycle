@@ -21,9 +21,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.clock.ClockTimeMarker;
 import net.minecraft.world.clock.ClockTimeMarkers;
 import net.minecraft.world.clock.WorldClock;
+import xyz.eclipseisoffline.commonpermissionsapi.api.CommonPermissionNode;
+import xyz.eclipseisoffline.commonpermissionsapi.api.CommonPermissions;
 import xyz.eclipseisoffline.customtimecycle.clock.ClockRateManager;
 import xyz.eclipseisoffline.customtimecycle.clock.CustomTimeCycleClockMarkers;
 import xyz.eclipseisoffline.customtimecycle.clock.ServerClockManagerUtil;
@@ -37,10 +40,11 @@ public class TimeCycleCommand {
     private static final Dynamic3CommandExceptionType ERROR_INVALID_TIME_MARKER = new Dynamic3CommandExceptionType((clock, timeMarker1, timeMarker2)
             -> Component.literal("Invalid time marker " + timeMarker1 + " or " + timeMarker2 + " for clock " + clock));
 
+    private static final CommonPermissionNode PERMISSION_NODE = CommonPermissions.node(CustomTimeCycle.getModdedIdentifier("command"));
+
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext) {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("timecycle")
-                //.requires(); TODO
-        ;
+                .requires(CommonPermissions.require(PERMISSION_NODE, PermissionLevel.GAMEMASTERS));
         dispatcher.register(addClockCommands(root, context -> TimeCommandAccessor.getDefaultClock(context.getSource())));
         dispatcher.register(root
                 .then(Commands.literal("of")
