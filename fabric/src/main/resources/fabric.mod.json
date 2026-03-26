@@ -23,10 +23,10 @@
   "entrypoints": {
     "client": [],
     "main": [
-      "xyz.eclipseisoffline.customtimecycle.CustomTimeCycleFabric"
+      "xyz.eclipseisoffline.customtimecycle.fabric.CustomTimeCycleFabric"
     ],
     "modmenu": [
-      "xyz.eclipseisoffline.customtimecycle.client.CustomTimeCycleModMenuCompat"
+      "xyz.eclipseisoffline.customtimecycle.fabric.client.CustomTimeCycleModMenuCompat"
     ]
   },
   "mixins": [

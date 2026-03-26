@@ -1,4 +1,4 @@
-package xyz.eclipseisoffline.customtimecycle;
+package xyz.eclipseisoffline.customtimecycle.neoforge;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -12,6 +12,7 @@ import net.neoforged.neoforge.server.permission.PermissionAPI;
 import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
 import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
 import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
+import xyz.eclipseisoffline.customtimecycle.CustomTimeCycle;
 
 import java.nio.file.Path;
 import java.util.function.Predicate;

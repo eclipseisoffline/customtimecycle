@@ -11,11 +11,12 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.PermissionCheck;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 public abstract class CustomTimeCycle {
-    private static CustomTimeCycle instance;
+    private static @Nullable CustomTimeCycle instance;
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final String MOD_ID = "customtimecycle";
     public static final String COMMAND_PERMISSION = "command";

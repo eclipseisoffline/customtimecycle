@@ -1,4 +1,4 @@
-package xyz.eclipseisoffline.customtimecycle;
+package xyz.eclipseisoffline.customtimecycle.fabric;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.permissions.PermissionCheck;
+import xyz.eclipseisoffline.customtimecycle.CustomTimeCycle;
 
 import java.nio.file.Path;
 import java.util.function.Predicate;
