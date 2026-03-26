@@ -12,6 +12,8 @@ public interface ClockInstanceUtil {
 
     boolean customTimeCycle$hasPeriodicMarker();
 
+    float customTimeCycle$getRateMultiplier();
+
     boolean customTimeCycle$setRateMultiplier(float rateMultiplier);
 
     @Nullable ResourceKey<ClockTimeMarker> customTimeCycle$getLastMarker(boolean commandsOnly);

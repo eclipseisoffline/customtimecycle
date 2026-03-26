@@ -2,6 +2,7 @@ package xyz.eclipseisoffline.customtimecycle;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -44,6 +45,9 @@ public class TimeCycleCommand {
                         .executes(context -> {
                             ClockRateManager rateManager = ClockRateManager.getInstance(context.getSource().getServer());
                             Holder<WorldClock> clock = clockGetter.getPeriodicClock(context);
+                            float rate = getServerClockManager(context).customTimeCycle$getRateForClock(clock);
+
+                            context.getSource().sendSuccess(() -> Component.literal("Clock " + clock.getRegisteredName() + " is currently running at a rate multiplier of " + rate), false);
                             context.getSource().sendSuccess(() -> Component.literal("The following rates are set for clock " + clock.getRegisteredName() + ":"), false);
 
                             context.getSource().getServer().clockManager().commandTimeMarkersForClock(clock)
@@ -61,10 +65,9 @@ public class TimeCycleCommand {
                                                 .then(periodicTimeMarkerArgument("to", clockGetter)
                                                         .then(Commands.literal("duration")
                                                                 .then(Commands.argument("duration", TimeArgument.time(1))
-                                                                        .executes(context -> {
-                                                                            // TODO
-                                                                            return 0;
-                                                                        })
+                                                                        .executes(context -> setDurationBetweenMarkers(context,
+                                                                                getTimeMarker(context, "from"), getTimeMarker(context, "to"),
+                                                                                IntegerArgumentType.getInteger(context, "duration"), clockGetter))
                                                                 )
                                                         )
                                                         .then(Commands.literal("rate")
@@ -87,6 +90,19 @@ public class TimeCycleCommand {
                             return 0;
                         })
                 );
+    }
+
+    private static int setDurationBetweenMarkers(CommandContext<CommandSourceStack> context,
+                                                 ResourceKey<ClockTimeMarker> from,
+                                                 ResourceKey<ClockTimeMarker> to,
+                                                 int duration,
+                                                 ClockGetter clockGetter) throws CommandSyntaxException {
+        Holder<WorldClock> clock = clockGetter.getPeriodicClock(context);
+        int timeBetweenMarkers = getServerClockManager(context).customTimeCycle$getTicksBetween(clock, from, to);
+        if (timeBetweenMarkers < 1) {
+            throw ERROR_INVALID_TIME_MARKER.create(clock.getRegisteredName(), from.identifier(), to.identifier());
+        }
+        return setRateBetweenMarkers(context, from, to, (float) timeBetweenMarkers / duration, clockGetter);
     }
 
     private static int setRateBetweenMarkers(CommandContext<CommandSourceStack> context,

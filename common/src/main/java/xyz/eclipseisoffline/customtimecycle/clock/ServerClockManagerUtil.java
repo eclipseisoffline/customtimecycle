@@ -13,5 +13,9 @@ public interface ServerClockManagerUtil {
 
     int customTimeCycle$getTicksFor(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> marker);
 
+    int customTimeCycle$getTicksBetween(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> from, ResourceKey<ClockTimeMarker> to);
+
+    float customTimeCycle$getRateForClock(Holder<WorldClock> clock);
+
     List<ResourceKey<ClockTimeMarker>> customTimeCycle$getMarkersBetween(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> from, ResourceKey<ClockTimeMarker> to);
 }

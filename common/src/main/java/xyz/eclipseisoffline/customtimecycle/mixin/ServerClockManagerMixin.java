@@ -56,6 +56,25 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
     }
 
     @Override
+    public int customTimeCycle$getTicksBetween(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> fromKey, ResourceKey<ClockTimeMarker> toKey) {
+        Map<ResourceKey<ClockTimeMarker>, ClockTimeMarker> timeMarkers = customTimeCycle$getInstance(clock).customTimeCycle$getTimeMarkers();
+        if (timeMarkers.isEmpty()) {
+            return -1;
+        }
+        ClockTimeMarker from = timeMarkers.get(fromKey);
+        ClockTimeMarker to = timeMarkers.get(toKey);
+        if (from == null || to == null) {
+            return -1;
+        }
+        return from.ticks() < to.ticks() ? to.ticks() - from.ticks() : to.ticks() + (from.periodTicks().orElseThrow() - from.ticks());
+    }
+
+    @Override
+    public float customTimeCycle$getRateForClock(Holder<WorldClock> clock) {
+        return customTimeCycle$getInstance(clock).customTimeCycle$getRateMultiplier();
+    }
+
+    @Override
     public List<ResourceKey<ClockTimeMarker>> customTimeCycle$getMarkersBetween(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> fromKey, ResourceKey<ClockTimeMarker> toKey) {
         Map<ResourceKey<ClockTimeMarker>, ClockTimeMarker> timeMarkers = customTimeCycle$getInstance(clock).customTimeCycle$getTimeMarkers();
         if (timeMarkers.isEmpty()) {
@@ -135,6 +154,11 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
         @Override
         public boolean customTimeCycle$hasPeriodicMarker() {
             return timeMarkers.values().stream().anyMatch(marker -> marker.periodTicks().isPresent());
+        }
+
+        @Override
+        public float customTimeCycle$getRateMultiplier() {
+            return customTimeCycle$rateMultiplier;
         }
 
         @Override
