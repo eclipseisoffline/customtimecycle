@@ -5,17 +5,11 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "customtimecycle-refmap.json",
   "mixins": [
-    "MinecraftServerMixin",
-    "PrimaryLevelDataMixin",
     "ServerClockManagerMixin",
     "ServerClockManagerMixin$ClockInstanceMixin",
-    "TimeCommandAccessor",
-    "VillagerMixin"
+    "TimeCommandAccessor"
   ],
   "client": [
-    "client.CreateWorldScreenMixin",
-    "client.CreateWorldScreenMixin$MoreTabMixin",
-    "client.WorldCreationUiStateMixin"
   ],
   "injectors": {
     "defaultRequire": 1

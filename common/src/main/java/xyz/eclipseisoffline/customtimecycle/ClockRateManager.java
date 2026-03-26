@@ -9,11 +9,11 @@ import net.minecraft.world.clock.ClockTimeMarker;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.ToLongFunction;
 
 public class ClockRateManager extends SavedData {
     public static final Identifier ID = CustomTimeCycle.getModdedIdentifier("clock_rates");
@@ -31,13 +31,16 @@ public class ClockRateManager extends SavedData {
         setDirty();
     }
 
-    public float getClockRate(Holder<WorldClock> clock, ToLongFunction<ResourceKey<ClockTimeMarker>> durationToNextGetter) {
-        // TODO this is called for every clock every tick, this can be optimised, but is it necessary to?
+    public float getClockRate(Holder<WorldClock> clock, @Nullable ResourceKey<ClockTimeMarker> lastMarker) {
+        if (lastMarker == null) {
+            return 1.0F;
+        }
+
         ClockRateSteps steps = clockRateSteps.get(clock);
         if (steps == null) {
             return 1.0F;
         }
-        return steps.getActiveClockRate(durationToNextGetter);
+        return steps.getActiveClockRate(lastMarker);
     }
 
     public static ClockRateManager getInstance(MinecraftServer server) {
@@ -62,17 +65,8 @@ public class ClockRateManager extends SavedData {
             return new ClockRateSteps(Collections.unmodifiableMap(newRates));
         }
 
-        public float getActiveClockRate(ToLongFunction<ResourceKey<ClockTimeMarker>> durationToNextGetter) {
-            float furthestRate = 1.0F;
-            long furthestDuration = 0L;
-            for (Map.Entry<ResourceKey<ClockTimeMarker>, Float> entry : markerRates.entrySet()) {
-                long durationToNext = durationToNextGetter.applyAsLong(entry.getKey());
-                if (durationToNext > furthestDuration) {
-                    furthestRate = entry.getValue();
-                    furthestDuration = durationToNext;
-                }
-            }
-            return furthestRate;
+        public float getActiveClockRate(ResourceKey<ClockTimeMarker> lastMarker) {
+            return markerRates.getOrDefault(lastMarker, 1.0F);
         }
     }
 }
