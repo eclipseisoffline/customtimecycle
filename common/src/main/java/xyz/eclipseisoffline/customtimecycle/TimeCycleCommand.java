@@ -67,18 +67,31 @@ public class TimeCycleCommand {
                                                                 .then(Commands.argument("duration", TimeArgument.time(1))
                                                                         .executes(context -> setDurationBetweenMarkers(context,
                                                                                 getTimeMarker(context, "from"), getTimeMarker(context, "to"),
-                                                                                IntegerArgumentType.getInteger(context, "duration"), clockGetter))
+                                                                                IntegerArgumentType.getInteger(context, "duration"), clockGetter, true))
                                                                 )
                                                         )
                                                         .then(Commands.literal("rate")
                                                                 .then(Commands.argument("rate", FloatArgumentType.floatArg(1.0E-5F, 1000.0F))
                                                                         .executes(context -> setRateBetweenMarkers(context,
                                                                                 getTimeMarker(context, "from"), getTimeMarker(context, "to"),
-                                                                                FloatArgumentType.getFloat(context, "rate"), clockGetter))
+                                                                                FloatArgumentType.getFloat(context, "rate"), clockGetter, true))
                                                                 )
                                                         )
                                                 )
                                         )
+                                )
+                        )
+                        .then(Commands.argument("dayduration", TimeArgument.time(1))
+                                .then(Commands.argument("nightduration", TimeArgument.time(1))
+                                        .executes(context -> {
+                                            int dayRate = IntegerArgumentType.getInteger(context, "dayduration");
+                                            int nightRate = IntegerArgumentType.getInteger(context, "nightduration");
+                                            // TODO sunrise/sunset markers
+                                            setDurationBetweenMarkers(context, ClockTimeMarkers.DAY, ClockTimeMarkers.NIGHT, dayRate, clockGetter, false);
+                                            setDurationBetweenMarkers(context, ClockTimeMarkers.NIGHT, ClockTimeMarkers.DAY, nightRate, clockGetter, false);
+                                            context.getSource().sendSuccess(() -> Component.literal("Set day duration to " + dayRate + " server ticks and night duration to " + nightRate + " server ticks"), true);
+                                            return 0;
+                                        })
                                 )
                         )
                 )
@@ -96,20 +109,25 @@ public class TimeCycleCommand {
                                                  ResourceKey<ClockTimeMarker> from,
                                                  ResourceKey<ClockTimeMarker> to,
                                                  int duration,
-                                                 ClockGetter clockGetter) throws CommandSyntaxException {
+                                                 ClockGetter clockGetter,
+                                                 boolean feedback) throws CommandSyntaxException {
         Holder<WorldClock> clock = clockGetter.getPeriodicClock(context);
         int timeBetweenMarkers = getServerClockManager(context).customTimeCycle$getTicksBetween(clock, from, to);
         if (timeBetweenMarkers < 1) {
             throw ERROR_INVALID_TIME_MARKER.create(clock.getRegisteredName(), from.identifier(), to.identifier());
         }
-        return setRateBetweenMarkers(context, from, to, (float) timeBetweenMarkers / duration, clockGetter);
+        if (feedback) {
+            context.getSource().sendSuccess(() -> Component.literal("Set duration for clock " + clock.getRegisteredName() + " between " + from.identifier() + " and " + to.identifier() + " to " + duration), true);
+        }
+        return setRateBetweenMarkers(context, from, to, (float) timeBetweenMarkers / duration, clockGetter, false);
     }
 
     private static int setRateBetweenMarkers(CommandContext<CommandSourceStack> context,
                                              ResourceKey<ClockTimeMarker> from,
                                              ResourceKey<ClockTimeMarker> to,
                                              float rate,
-                                             ClockGetter clockGetter) throws CommandSyntaxException {
+                                             ClockGetter clockGetter,
+                                             boolean feedback) throws CommandSyntaxException {
         Holder<WorldClock> clock = clockGetter.getPeriodicClock(context);
         List<ResourceKey<ClockTimeMarker>> markers = getServerClockManager(context).customTimeCycle$getMarkersBetween(clock, from, to);
         if (markers.isEmpty()) {
@@ -120,6 +138,9 @@ public class TimeCycleCommand {
             ClockRateManager.getInstance(context.getSource().getServer()).setRateForClockAtMarker(clock, marker, rate);
         }
 
+        if (feedback) {
+            context.getSource().sendSuccess(() -> Component.literal("Set rate multiplier for clock " + clock.getRegisteredName() + " between " + from.identifier() + " and " + to.identifier() + " to " + rate), true);
+        }
         return markers.size();
     }
 
