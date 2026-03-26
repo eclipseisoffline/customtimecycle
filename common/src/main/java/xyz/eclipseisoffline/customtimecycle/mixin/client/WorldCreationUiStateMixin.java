@@ -4,7 +4,7 @@ import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import xyz.eclipseisoffline.customtimecycle.TimeManagerConfiguration;
+import xyz.eclipseisoffline.customtimecycle.TimeCycleConfiguration;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycleState;
 
@@ -12,7 +12,7 @@ import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycleState;
 public abstract class WorldCreationUiStateMixin implements PreconfiguredTimeCycleState {
 
     @Unique
-    private @Nullable PreconfiguredTimeCycle customTimeCycle$preconfiguredTimeCycle = TimeManagerConfiguration.getLoaded().toPreconfigured();
+    private @Nullable PreconfiguredTimeCycle customTimeCycle$preconfiguredTimeCycle = TimeCycleConfiguration.getLoaded().toPreconfigured();
 
     @Override
     public @Nullable PreconfiguredTimeCycle customTimeCycle$getPreconfiguredTimeCycle() {

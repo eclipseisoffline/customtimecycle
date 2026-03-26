@@ -1,11 +1,8 @@
 package xyz.eclipseisoffline.customtimecycle;
 
-import com.mojang.serialization.Codec;
-import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.saveddata.SavedDataType;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 public class TimeManager extends SavedData {
@@ -24,7 +21,7 @@ public class TimeManager extends SavedData {
     }
 
     private TimeManager(ServerLevel level) {
-        this(level, TimeManagerConfiguration.getLoaded().dayTime(), TimeManagerConfiguration.getLoaded().nightTime());
+        this(level, TimeCycleConfiguration.getLoaded().dayTime(), TimeCycleConfiguration.getLoaded().nightTime());
     }
 
     /*public void tickTime() {

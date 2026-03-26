@@ -45,7 +45,6 @@ public abstract class TimelineMixin {
             //noinspection unchecked,rawtypes
             newMarkers.putAll((Map) ((TimelineMixin) (Object) TIMELINE_WITH_SUN_MARKERS).timeMarkers);
             ((TimelineMixin) (Object) timeline.value()).timeMarkers = newMarkers;
-            System.out.println("BLERG");
         }
     }
 }

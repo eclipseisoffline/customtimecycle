@@ -52,6 +52,10 @@ public class ClockRateManager extends SavedData {
         return server.getDataStorage().computeIfAbsent(TYPE);
     }
 
+    public static @Nullable ClockRateManager getInstanceOrNull(MinecraftServer server) {
+        return server.getDataStorage().get(TYPE);
+    }
+
     public record ClockRateSteps(Map<ResourceKey<ClockTimeMarker>, Float> markerRates) {
         public static final Codec<ClockRateSteps> CODEC = Codec.unboundedMap(ClockTimeMarker.KEY_CODEC, Codec.FLOAT)
                 .xmap(ClockRateSteps::new, ClockRateSteps::markerRates);

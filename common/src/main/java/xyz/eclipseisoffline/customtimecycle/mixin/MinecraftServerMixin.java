@@ -19,11 +19,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.eclipseisoffline.customtimecycle.ClockRateManager;
+import xyz.eclipseisoffline.customtimecycle.CustomTimeCycle;
+import xyz.eclipseisoffline.customtimecycle.TimeCycleConfiguration;
 import xyz.eclipseisoffline.customtimecycle.clock.CustomTimeCycleClockMarkers;
 import xyz.eclipseisoffline.customtimecycle.clock.ServerClockManagerUtil;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycleState;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Mixin(MinecraftServer.class)
@@ -43,22 +46,28 @@ public abstract class MinecraftServerMixin extends ReentrantBlockableEventLoop<T
 
     @Inject(method = "createLevels", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/ServerScoreboard;load(Lnet/minecraft/world/scores/ScoreboardSaveData$Packed;)V"))
     public void applyCustomTime(CallbackInfo callbackInfo, @Local(name = "overworld") ServerLevel level) {
-        if (worldData instanceof PreconfiguredTimeCycleState preconfiguredState) {
-            PreconfiguredTimeCycle preconfigured = preconfiguredState.customTimeCycle$getPreconfiguredTimeCycle();
-            if (preconfigured != null) {
-                Optional<Holder<WorldClock>> clock = level.dimensionType().defaultClock();
-                clock.ifPresent(clockHolder -> {
-                    ClockRateManager rateManager = ClockRateManager.getInstance((MinecraftServer) (Object) this);
-                    try {
-                        ((ServerClockManagerUtil) clockManager).setDurationBetweenMarkers(clockHolder,
-                                CustomTimeCycleClockMarkers.SUNRISE, CustomTimeCycleClockMarkers.SUNSET, preconfigured.dayTime(),
-                                rateManager);
-                        ((ServerClockManagerUtil) clockManager).setDurationBetweenMarkers(clockHolder,
-                                CustomTimeCycleClockMarkers.SUNSET, CustomTimeCycleClockMarkers.SUNRISE, preconfigured.nightTime(),
-                                rateManager);
-                    } catch (IllegalArgumentException ignored) {}
-                });
+        if (ClockRateManager.getInstanceOrNull((MinecraftServer) (Object) this) == null) {
+            PreconfiguredTimeCycle preconfigured;
+            if (worldData instanceof PreconfiguredTimeCycleState preconfiguredState && preconfiguredState.customTimeCycle$getPreconfiguredTimeCycle() != null) {
+                CustomTimeCycle.LOGGER.info("Using preconfigured timecycle of world");
+                preconfigured = Objects.requireNonNull(preconfiguredState.customTimeCycle$getPreconfiguredTimeCycle());
+            } else {
+                CustomTimeCycle.LOGGER.info("Using preconfigured timecycle of config");
+                preconfigured = TimeCycleConfiguration.getLoaded().toPreconfigured();
             }
+
+            Optional<Holder<WorldClock>> clock = level.dimensionType().defaultClock();
+            clock.ifPresent(clockHolder -> {
+                ClockRateManager rateManager = ClockRateManager.getInstance((MinecraftServer) (Object) this);
+                try {
+                    ((ServerClockManagerUtil) clockManager).setDurationBetweenMarkers(clockHolder,
+                            CustomTimeCycleClockMarkers.SUNRISE, CustomTimeCycleClockMarkers.SUNSET, preconfigured.dayTime(),
+                            rateManager);
+                    ((ServerClockManagerUtil) clockManager).setDurationBetweenMarkers(clockHolder,
+                            CustomTimeCycleClockMarkers.SUNSET, CustomTimeCycleClockMarkers.SUNRISE, preconfigured.nightTime(),
+                            rateManager);
+                } catch (IllegalArgumentException ignored) {}
+            });
         }
     }
 }

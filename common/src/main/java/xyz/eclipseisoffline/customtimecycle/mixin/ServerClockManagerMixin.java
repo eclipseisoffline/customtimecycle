@@ -75,7 +75,8 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
     }
 
     @Override
-    public List<ResourceKey<ClockTimeMarker>> customTimeCycle$getMarkersBetween(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> fromKey, ResourceKey<ClockTimeMarker> toKey) {
+    public List<ResourceKey<ClockTimeMarker>> customTimeCycle$getMarkersBetween(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> fromKey, ResourceKey<ClockTimeMarker> toKey,
+                                                                                boolean commandsOnly) {
         Map<ResourceKey<ClockTimeMarker>, ClockTimeMarker> timeMarkers = customTimeCycle$getInstance(clock).customTimeCycle$getTimeMarkers();
         if (timeMarkers.isEmpty()) {
             return List.of();
@@ -92,13 +93,13 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
         List<ResourceKey<ClockTimeMarker>> markersBetween = new ArrayList<>();
         if (endTick < startTick) {
             for (Map.Entry<ResourceKey<ClockTimeMarker>, ClockTimeMarker> marker : timeMarkers.entrySet()) {
-                if (marker.getValue().ticks() < endTick || marker.getValue().ticks() >= startTick) {
+                if ((!commandsOnly || marker.getValue().showInCommands()) && (marker.getValue().ticks() < endTick || marker.getValue().ticks() >= startTick)) {
                     markersBetween.add(marker.getKey());
                 }
             }
         } else {
             for (Map.Entry<ResourceKey<ClockTimeMarker>, ClockTimeMarker> marker : timeMarkers.entrySet()) {
-                if (marker.getValue().ticks() >= startTick && marker.getValue().ticks() < endTick) {
+                if ((!commandsOnly || marker.getValue().showInCommands()) && (marker.getValue().ticks() >= startTick && marker.getValue().ticks() < endTick)) {
                     markersBetween.add(marker.getKey());
                 }
             }

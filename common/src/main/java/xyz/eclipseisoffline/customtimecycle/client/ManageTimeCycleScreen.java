@@ -11,7 +11,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringUtil;
-import xyz.eclipseisoffline.customtimecycle.TimeManagerConfiguration;
+import xyz.eclipseisoffline.customtimecycle.TimeCycleConfiguration;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 import java.util.function.Consumer;
@@ -40,7 +40,7 @@ public class ManageTimeCycleScreen extends Screen {
     }
 
     public ManageTimeCycleScreen(Screen parent, Consumer<PreconfiguredTimeCycle> doneConsumer) {
-        this(parent, TimeManagerConfiguration.getLoaded().toPreconfigured(), doneConsumer, true);
+        this(parent, TimeCycleConfiguration.getLoaded().toPreconfigured(), doneConsumer, true);
     }
 
     @Override

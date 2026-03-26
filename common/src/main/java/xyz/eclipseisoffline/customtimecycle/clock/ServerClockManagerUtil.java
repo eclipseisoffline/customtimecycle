@@ -18,7 +18,8 @@ public interface ServerClockManagerUtil {
 
     float customTimeCycle$getRateForClock(Holder<WorldClock> clock);
 
-    List<ResourceKey<ClockTimeMarker>> customTimeCycle$getMarkersBetween(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> from, ResourceKey<ClockTimeMarker> to);
+    List<ResourceKey<ClockTimeMarker>> customTimeCycle$getMarkersBetween(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> fromKey, ResourceKey<ClockTimeMarker> toKey,
+                                                                         boolean commandsOnly);
 
     default void setDurationBetweenMarkers(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> from, ResourceKey<ClockTimeMarker> to, int duration,
                                            ClockRateManager rateManager) {
@@ -28,7 +29,7 @@ public interface ServerClockManagerUtil {
         }
         float rate = (float) timeBetweenMarkers / duration;
 
-        List<ResourceKey<ClockTimeMarker>> markers = customTimeCycle$getMarkersBetween(clock, from, to);
+        List<ResourceKey<ClockTimeMarker>> markers = customTimeCycle$getMarkersBetween(clock, from, to, true);
         for (ResourceKey<ClockTimeMarker> marker : markers) {
             rateManager.setRateForClockAtMarker(clock, marker, rate);
         }

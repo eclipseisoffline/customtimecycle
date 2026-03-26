@@ -138,7 +138,7 @@ public class TimeCycleCommand {
                                              ClockGetter clockGetter,
                                              boolean feedback) throws CommandSyntaxException {
         Holder<WorldClock> clock = clockGetter.getPeriodicClock(context);
-        List<ResourceKey<ClockTimeMarker>> markers = getServerClockManager(context).customTimeCycle$getMarkersBetween(clock, from, to);
+        List<ResourceKey<ClockTimeMarker>> markers = getServerClockManager(context).customTimeCycle$getMarkersBetween(clock, from, to, true);
         if (markers.isEmpty()) {
             throw ERROR_INVALID_TIME_MARKER.create(clock.getRegisteredName(), from.identifier(), to.identifier());
         }

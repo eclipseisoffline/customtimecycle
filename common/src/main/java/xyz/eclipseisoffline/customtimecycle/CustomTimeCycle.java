@@ -1,9 +1,7 @@
 package xyz.eclipseisoffline.customtimecycle;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+
 import java.nio.file.Path;
 import java.util.function.Predicate;
 
@@ -11,13 +9,9 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.TimeArgument;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.PermissionCheck;
-import net.minecraft.util.StringUtil;
 import org.slf4j.Logger;
-import xyz.eclipseisoffline.customtimecycle.TimeManager.DayPartTimeRate;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 public abstract class CustomTimeCycle {
@@ -34,11 +28,11 @@ public abstract class CustomTimeCycle {
         instance = this;
 
         LOGGER.info("Custom Time Cycle initialising, reading configuration");
-        TimeManagerConfiguration.load(getConfigDir().resolve(CONFIG_FILE), client);
+        TimeCycleConfiguration.load(getConfigDir().resolve(CONFIG_FILE), client);
     }
 
     public void reloadConfig(PreconfiguredTimeCycle timeCycle) {
-        TimeManagerConfiguration.loadFromPreconfigured(getConfigDir().resolve(CONFIG_FILE), timeCycle);
+        TimeCycleConfiguration.loadFromPreconfigured(getConfigDir().resolve(CONFIG_FILE), timeCycle);
     }
 
     public void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext) {
