@@ -13,11 +13,11 @@ import org.slf4j.Logger;
 import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycle;
 
 public abstract class CustomTimeCycle {
-    private static @Nullable CustomTimeCycle instance;
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final String MOD_ID = "customtimecycle";
-    public static final String COMMAND_PERMISSION = "command";
     public static final Path CONFIG_FILE = Path.of(MOD_ID + ".json");
+
+    private static @Nullable CustomTimeCycle instance;
 
     public void initialise(boolean client) {
         if (instance != null) {

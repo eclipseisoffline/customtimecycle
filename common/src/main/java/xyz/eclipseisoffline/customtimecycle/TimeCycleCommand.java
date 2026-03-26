@@ -19,6 +19,8 @@ import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.permissions.PermissionLevel;
@@ -65,10 +67,20 @@ public class TimeCycleCommand {
                             context.getSource().sendSuccess(() -> Component.literal("Clock " + clock.getRegisteredName() + " is currently running at a rate multiplier of " + rate), false);
                             context.getSource().sendSuccess(() -> Component.literal("The following rates are set for clock " + clock.getRegisteredName() + ":"), false);
 
-                            context.getSource().getServer().clockManager().commandTimeMarkersForClock(clock)
+                            List<ResourceKey<ClockTimeMarker>> markers = context.getSource().getServer().clockManager().commandTimeMarkersForClock(clock)
                                     .sorted(Comparator.comparingInt(marker -> getServerClockManager(context).customTimeCycle$getTicksFor(clock, marker)))
-                                    .forEach(marker -> context.getSource().sendSuccess(
-                                            () -> Component.literal("After " + marker.identifier() + ": " + rateManager.getClockRate(clock, marker)), false));
+                                    .toList();
+                            MutableComponent markerRatesComponent = Component.empty();
+
+                            for (int i = 0; i < markers.size(); i++) {
+                                if (i > 0) {
+                                    markerRatesComponent.append(" -> ");
+                                }
+                                ResourceKey<ClockTimeMarker> marker = markers.get(i);
+                                markerRatesComponent.append(Component.literal("[" + rateManager.getClockRate(clock, marker) + "]")
+                                        .withStyle(style -> style.withHoverEvent(new HoverEvent.ShowText(Component.literal(marker.identifier().toString())))));
+                            }
+                            context.getSource().sendSuccess(() -> markerRatesComponent, false);
 
                             return 0;
                         })
