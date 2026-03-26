@@ -3,11 +3,11 @@
   "minVersion": "0.8",
   "package": "xyz.eclipseisoffline.customtimecycle.mixin",
   "compatibilityLevel": "JAVA_21",
-  "refmap": "customtimecycle-refmap.json",
   "mixins": [
     "ServerClockManagerMixin",
     "ServerClockManagerMixin$ClockInstanceMixin",
-    "TimeCommandAccessor"
+    "TimeCommandAccessor",
+    "TimelineMixin"
   ],
   "client": [
   ],

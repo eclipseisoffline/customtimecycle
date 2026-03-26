@@ -24,6 +24,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.clock.ClockTimeMarker;
 import net.minecraft.world.clock.ClockTimeMarkers;
 import net.minecraft.world.clock.WorldClock;
+import xyz.eclipseisoffline.customtimecycle.clock.CustomTimeCycleClockMarkers;
 import xyz.eclipseisoffline.customtimecycle.clock.ServerClockManagerUtil;
 import xyz.eclipseisoffline.customtimecycle.mixin.TimeCommandAccessor;
 
@@ -95,9 +96,8 @@ public class TimeCycleCommand {
                                         .executes(context -> {
                                             int dayRate = IntegerArgumentType.getInteger(context, "dayduration");
                                             int nightRate = IntegerArgumentType.getInteger(context, "nightduration");
-                                            // TODO sunrise/sunset markers
-                                            setDurationBetweenMarkers(context, ClockTimeMarkers.DAY, ClockTimeMarkers.NIGHT, dayRate, clockGetter, false);
-                                            setDurationBetweenMarkers(context, ClockTimeMarkers.NIGHT, ClockTimeMarkers.DAY, nightRate, clockGetter, false);
+                                            setDurationBetweenMarkers(context, CustomTimeCycleClockMarkers.SUNRISE, CustomTimeCycleClockMarkers.SUNSET, dayRate, clockGetter, false);
+                                            setDurationBetweenMarkers(context, CustomTimeCycleClockMarkers.SUNSET, CustomTimeCycleClockMarkers.SUNRISE, nightRate, clockGetter, false);
                                             context.getSource().sendSuccess(() -> Component.literal("Set day duration to " + dayRate + " server ticks and night duration to " + nightRate + " server ticks"), true);
                                             return 0;
                                         })
@@ -126,7 +126,7 @@ public class TimeCycleCommand {
             throw ERROR_INVALID_TIME_MARKER.create(clock.getRegisteredName(), from.identifier(), to.identifier());
         }
         if (feedback) {
-            context.getSource().sendSuccess(() -> Component.literal("Set duration for clock " + clock.getRegisteredName() + " between " + from.identifier() + " and " + to.identifier() + " to " + duration), true);
+            context.getSource().sendSuccess(() -> Component.literal("Set duration for clock " + clock.getRegisteredName() + " between " + from.identifier() + " and " + to.identifier() + " to " + duration + " server ticks"), true);
         }
         return setRateBetweenMarkers(context, from, to, (float) timeBetweenMarkers / duration, clockGetter, false);
     }
