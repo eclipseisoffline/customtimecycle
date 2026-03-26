@@ -27,7 +27,7 @@ public class TimeManager extends SavedData {
         this(level, TimeManagerConfiguration.getLoaded().dayTime(), TimeManagerConfiguration.getLoaded().nightTime());
     }
 
-    public void tickTime() {
+    /*public void tickTime() {
         long oldDayTime = level.getDayTime();
         if (isDay()) {
             dayTimeRate.apply(level);
@@ -38,7 +38,7 @@ public class TimeManager extends SavedData {
             // Send time sync packet to all clients in this level when not following normal time rate and the time has changed
             level.getServer().getPlayerList().broadcastAll(new ClientboundSetTimePacket(level.getGameTime(), level.getDayTime(), false), level.dimension());
         }
-    }
+    }*/
 
     public DayPartTimeRate getTimeRate() {
         if (isDay()) {
@@ -78,25 +78,27 @@ public class TimeManager extends SavedData {
     }
 
     public boolean isDay() {
-        return (level.getDayTime() % 24000) < NORMAL_DAY_TIME;
+        //return (level.getDayTime() % 24000) < NORMAL_DAY_TIME;
+        return false;
     }
 
     public static TimeManager getInstance(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(TimeManager.type(level));
+        //return level.getDataStorage().computeIfAbsent(TimeManager.type(level));
+        throw new UnsupportedOperationException();
     }
 
     public static void setInstance(ServerLevel level, PreconfiguredTimeCycle preconfigured) {
-        level.getDataStorage().set(type(level), new TimeManager(level, preconfigured.dayTime(), preconfigured.nightTime()));
+        //level.getDataStorage().set(type(level), new TimeManager(level, preconfigured.dayTime(), preconfigured.nightTime()));
     }
 
-    private static SavedDataType<TimeManager> type(ServerLevel level) {
+    /*private static SavedDataType<TimeManager> type(ServerLevel level) {
         Codec<TimeManager> codec = TimeManagerConfiguration.CODEC.xmap(
                 configuration -> new TimeManager(level, configuration.dayTime(), configuration.nightTime()),
                 manager -> new TimeManagerConfiguration(manager.dayTimeRate.duration, manager.nightTimeRate.duration)
         );
 
         return new SavedDataType<>(TIME_MANAGER_SAVE, () -> new TimeManager(level), codec, null);
-    }
+    }*/
 
     public static boolean invalidTimeRate(long timeRate) {
         return timeRate <= 0;
@@ -135,7 +137,7 @@ public class TimeManager extends SavedData {
 
         private void apply(ServerLevel level) {
             long currentTime = Mth.lfloor(dayTime);
-            if (currentTime != level.getDayTime()) {
+            /*if (currentTime != level.getDayTime()) {
                 dayTime = level.getDayTime();
                 currentTime = level.getDayTime();
             }
@@ -145,7 +147,7 @@ public class TimeManager extends SavedData {
                 if (newTime != currentTime) {
                     level.setDayTime(newTime);
                 }
-            }
+            }*/
         }
 
         public long getDuration() {

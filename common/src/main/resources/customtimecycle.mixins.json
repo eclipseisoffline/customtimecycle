@@ -7,7 +7,8 @@
   "mixins": [
     "MinecraftServerMixin",
     "PrimaryLevelDataMixin",
-    "ServerLevelMixin",
+    "ServerClockManagerMixin",
+    "ServerClockManagerMixin$ClockInstanceMixin",
     "TimeCommandAccessor",
     "VillagerMixin"
   ],

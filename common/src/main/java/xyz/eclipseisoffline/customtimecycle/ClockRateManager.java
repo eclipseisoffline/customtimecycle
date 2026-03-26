@@ -31,13 +31,13 @@ public class ClockRateManager extends SavedData {
         setDirty();
     }
 
-    public float getClockRate(Holder<WorldClock> clock) {
+    public float getClockRate(Holder<WorldClock> clock, ToLongFunction<ResourceKey<ClockTimeMarker>> durationToNextGetter) {
         // TODO this is called for every clock every tick, this can be optimised, but is it necessary to?
         ClockRateSteps steps = clockRateSteps.get(clock);
         if (steps == null) {
             return 1.0F;
         }
-        return steps.getActiveClockRate();
+        return steps.getActiveClockRate(durationToNextGetter);
     }
 
     public static ClockRateManager getInstance(MinecraftServer server) {
