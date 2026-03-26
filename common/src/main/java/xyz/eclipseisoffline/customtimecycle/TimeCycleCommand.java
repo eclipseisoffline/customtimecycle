@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -14,7 +15,6 @@ import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.clock.ClockTimeMarker;
@@ -23,8 +23,13 @@ import net.minecraft.world.clock.WorldClock;
 import xyz.eclipseisoffline.customtimecycle.clock.ServerClockManagerUtil;
 import xyz.eclipseisoffline.customtimecycle.mixin.TimeCommandAccessor;
 
+import java.util.Comparator;
+import java.util.List;
+
 public class TimeCycleCommand {
     private static final DynamicCommandExceptionType ERROR_NOT_A_PERIODIC_CLOCK = new DynamicCommandExceptionType(clock -> Component.literal("Clock " + clock + " is not periodic"));
+    private static final Dynamic3CommandExceptionType ERROR_INVALID_TIME_MARKER = new Dynamic3CommandExceptionType((clock, timeMarker1, timeMarker2)
+            -> Component.literal("Invalid time marker " + timeMarker1 + " or " + timeMarker2 + " for clock " + clock));
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("timecycle")
@@ -39,14 +44,13 @@ public class TimeCycleCommand {
                         .executes(context -> {
                             ClockRateManager rateManager = ClockRateManager.getInstance(context.getSource().getServer());
                             Holder<WorldClock> clock = clockGetter.getPeriodicClock(context);
-                            MutableComponent feedback = Component.literal("The following rates are set for clock " + clock.getRegisteredName() + ":");
+                            context.getSource().sendSuccess(() -> Component.literal("The following rates are set for clock " + clock.getRegisteredName() + ":"), false);
 
                             context.getSource().getServer().clockManager().commandTimeMarkersForClock(clock)
-                                    .forEach(marker -> {
-                                        feedback.append("\nAt " + marker.identifier() + ": " + rateManager.getClockRate(clock, marker));
-                                    });
+                                    .sorted(Comparator.comparingInt(marker -> getServerClockManager(context).customTimeCycle$getTicksFor(clock, marker)))
+                                    .forEach(marker -> context.getSource().sendSuccess(
+                                            () -> Component.literal("After " + marker.identifier() + ": " + rateManager.getClockRate(clock, marker)), false));
 
-                            context.getSource().sendSuccess(() -> feedback, false);
                             return 0;
                         })
                 )
@@ -65,13 +69,9 @@ public class TimeCycleCommand {
                                                         )
                                                         .then(Commands.literal("rate")
                                                                 .then(Commands.argument("rate", FloatArgumentType.floatArg(1.0E-5F, 1000.0F))
-                                                                        .executes(context -> {
-                                                                            // TODO
-                                                                            ResourceKey<ClockTimeMarker> marker = ResourceKey.create(ClockTimeMarkers.ROOT_ID, IdentifierArgument.getId(context, "timemarker"));
-                                                                            float rate = FloatArgumentType.getFloat(context, "rate");
-                                                                            ClockRateManager.getInstance(context.getSource().getServer()).setRateForClockAtMarker(clockGetter.getPeriodicClock(context), marker, rate);
-                                                                            return 0;
-                                                                        })
+                                                                        .executes(context -> setRateBetweenMarkers(context,
+                                                                                getTimeMarker(context, "from"), getTimeMarker(context, "to"),
+                                                                                FloatArgumentType.getFloat(context, "rate"), clockGetter))
                                                                 )
                                                         )
                                                 )
@@ -89,6 +89,24 @@ public class TimeCycleCommand {
                 );
     }
 
+    private static int setRateBetweenMarkers(CommandContext<CommandSourceStack> context,
+                                             ResourceKey<ClockTimeMarker> from,
+                                             ResourceKey<ClockTimeMarker> to,
+                                             float rate,
+                                             ClockGetter clockGetter) throws CommandSyntaxException {
+        Holder<WorldClock> clock = clockGetter.getPeriodicClock(context);
+        List<ResourceKey<ClockTimeMarker>> markers = getServerClockManager(context).customTimeCycle$getMarkersBetween(clock, from, to);
+        if (markers.isEmpty()) {
+            throw ERROR_INVALID_TIME_MARKER.create(clock.getRegisteredName(), from.identifier(), to.identifier());
+        }
+
+        for (ResourceKey<ClockTimeMarker> marker : markers) {
+            ClockRateManager.getInstance(context.getSource().getServer()).setRateForClockAtMarker(clock, marker, rate);
+        }
+
+        return markers.size();
+    }
+
     private static RequiredArgumentBuilder<CommandSourceStack, Identifier> periodicTimeMarkerArgument(String name, ClockGetter clockGetter) {
         return Commands.argument(name, IdentifierArgument.id())
                 .suggests((c, builder) -> TimeCommandAccessor.suggestTimeMarkers(c.getSource(), builder, clockGetter.getPeriodicClock(c)));
@@ -98,6 +116,10 @@ public class TimeCycleCommand {
         return ResourceKey.create(ClockTimeMarkers.ROOT_ID, IdentifierArgument.getId(context, argumentName));
     }
 
+    private static ServerClockManagerUtil getServerClockManager(CommandContext<CommandSourceStack> context) {
+        return (ServerClockManagerUtil) context.getSource().getServer().clockManager();
+    }
+
     @FunctionalInterface
     private interface ClockGetter {
 
@@ -105,7 +127,7 @@ public class TimeCycleCommand {
 
         default Holder<WorldClock> getPeriodicClock(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
             Holder<WorldClock> clock = getClock(context);
-            if (!((ServerClockManagerUtil) context.getSource().getServer().clockManager()).customTimeCycle$isPeriodicClock(clock)) {
+            if (!getServerClockManager(context).customTimeCycle$isPeriodicClock(clock)) {
                 throw ERROR_NOT_A_PERIODIC_CLOCK.create(clock.getRegisteredName());
             }
             return clock;

@@ -20,10 +20,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.eclipseisoffline.customtimecycle.ClockRateManager;
-import xyz.eclipseisoffline.customtimecycle.clock.ClockInstanceRateManager;
+import xyz.eclipseisoffline.customtimecycle.clock.ClockInstanceUtil;
 import xyz.eclipseisoffline.customtimecycle.clock.ServerClockManagerUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Mixin(ServerClockManager.class)
@@ -39,12 +41,51 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
     @Shadow
     protected abstract long getGameTime();
 
-    @Shadow
-    protected abstract Object getInstance(Holder<WorldClock> definition);
-
     @Override
     public boolean customTimeCycle$isPeriodicClock(Holder<WorldClock> clock) {
-        return ((ClockInstanceRateManager) getInstance(clock)).customTimeCycle$hasPeriodicMarker();
+        return customTimeCycle$getInstance(clock).customTimeCycle$hasPeriodicMarker();
+    }
+
+    @Override
+    public int customTimeCycle$getTicksFor(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> markerKey) {
+        ClockTimeMarker marker = customTimeCycle$getInstance(clock).customTimeCycle$getTimeMarkers().get(markerKey);
+        if (marker == null) {
+            return -1;
+        }
+        return marker.ticks();
+    }
+
+    @Override
+    public List<ResourceKey<ClockTimeMarker>> customTimeCycle$getMarkersBetween(Holder<WorldClock> clock, ResourceKey<ClockTimeMarker> fromKey, ResourceKey<ClockTimeMarker> toKey) {
+        Map<ResourceKey<ClockTimeMarker>, ClockTimeMarker> timeMarkers = customTimeCycle$getInstance(clock).customTimeCycle$getTimeMarkers();
+        if (timeMarkers.isEmpty()) {
+            return List.of();
+        }
+        ClockTimeMarker from = timeMarkers.get(fromKey);
+        ClockTimeMarker to = timeMarkers.get(toKey);
+        if (from == null || to == null) {
+            return List.of();
+        }
+
+        int startTick = from.ticks();
+        int endTick = to.ticks();
+
+        List<ResourceKey<ClockTimeMarker>> markersBetween = new ArrayList<>();
+        if (endTick < startTick) {
+            for (Map.Entry<ResourceKey<ClockTimeMarker>, ClockTimeMarker> marker : timeMarkers.entrySet()) {
+                if (marker.getValue().ticks() < endTick || marker.getValue().ticks() >= startTick) {
+                    markersBetween.add(marker.getKey());
+                }
+            }
+        } else {
+            for (Map.Entry<ResourceKey<ClockTimeMarker>, ClockTimeMarker> marker : timeMarkers.entrySet()) {
+                if (marker.getValue().ticks() >= startTick && marker.getValue().ticks() < endTick) {
+                    markersBetween.add(marker.getKey());
+                }
+            }
+        }
+
+        return markersBetween;
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Collection;forEach(Ljava/util/function/Consumer;)V"))
@@ -54,7 +95,7 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
 
         // TODO this is called for every clock every tick, this can be optimised, but is it necessary to?
         clocks.forEach((clock, rawInstance) -> {
-            ClockInstanceRateManager instance = (ClockInstanceRateManager) rawInstance;
+            ClockInstanceUtil instance = (ClockInstanceUtil) rawInstance;
             float rate = rateManager.getClockRate(clock, instance.customTimeCycle$getLastMarker(true));
             if (instance.customTimeCycle$setRateMultiplier(rate)) {
                 updates.put(clock, instance.packNetworkState(server));
@@ -66,8 +107,18 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
         }
     }
 
+    @Unique
+    private ClockInstanceUtil customTimeCycle$getInstance(Holder<WorldClock> clock) {
+        ClockInstanceUtil instance = (ClockInstanceUtil) this.clocks.get(clock);
+        if (instance == null) {
+            throw new IllegalStateException("No clock initialized for definition: " + clock);
+        } else {
+            return instance;
+        }
+    }
+
     @Mixin(targets = "net.minecraft.world.clock.ServerClockManager$ClockInstance")
-    private abstract static class ClockInstanceMixin implements ClockInstanceRateManager {
+    private abstract static class ClockInstanceMixin implements ClockInstanceUtil {
         @Shadow
         @Final
         private Map<ResourceKey<ClockTimeMarker>, ClockTimeMarker> timeMarkers;
@@ -110,6 +161,11 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
                 }
             }
             return furthestMarker;
+        }
+
+        @Override
+        public Map<ResourceKey<ClockTimeMarker>, ClockTimeMarker> customTimeCycle$getTimeMarkers() {
+            return timeMarkers;
         }
 
         @Unique
