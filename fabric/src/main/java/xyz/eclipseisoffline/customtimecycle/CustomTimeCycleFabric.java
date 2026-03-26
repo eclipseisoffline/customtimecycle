@@ -17,7 +17,7 @@ public class CustomTimeCycleFabric extends CustomTimeCycle implements ModInitial
     @Override
     public void onInitialize() {
         initialise(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT);
-        CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) -> registerCommand(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, _, _) -> registerCommand(dispatcher));
     }
 
     @Override

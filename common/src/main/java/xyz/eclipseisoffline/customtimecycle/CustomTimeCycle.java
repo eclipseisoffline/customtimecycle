@@ -41,7 +41,8 @@ public abstract class CustomTimeCycle {
     }
 
     public void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(
+        TimeCycleCommand.register(dispatcher);
+        /*dispatcher.register(
                 Commands.literal("timecycle")
                         .requires(checkPermission(MOD_ID + "." + COMMAND_PERMISSION, Commands.LEVEL_GAMEMASTERS))
                         .then(Commands.literal("status")
@@ -92,7 +93,8 @@ public abstract class CustomTimeCycle {
                                     return 0;
                                 })
                         )
-        );
+        );*/
+
     }
 
     public Predicate<CommandSourceStack> checkPermission(String permission, PermissionCheck vanillaFallback) {

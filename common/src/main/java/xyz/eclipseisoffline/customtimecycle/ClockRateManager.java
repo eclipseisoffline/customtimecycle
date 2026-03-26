@@ -40,7 +40,7 @@ public class ClockRateManager extends SavedData {
         return steps.getActiveClockRate();
     }
 
-    public ClockRateManager getInstance(MinecraftServer server) {
+    public static ClockRateManager getInstance(MinecraftServer server) {
         return server.getDataStorage().computeIfAbsent(TYPE);
     }
 

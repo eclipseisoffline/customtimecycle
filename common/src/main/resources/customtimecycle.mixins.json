@@ -8,6 +8,7 @@
     "MinecraftServerMixin",
     "PrimaryLevelDataMixin",
     "ServerLevelMixin",
+    "TimeCommandAccessor",
     "VillagerMixin"
   ],
   "client": [
