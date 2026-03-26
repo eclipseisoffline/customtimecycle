@@ -14,45 +14,52 @@ multimod {
 
     archivesBaseName = properties["archives_base_name"] as String
 
-    minecraft {
-        minecraft = libs.minecraft
-        parchment = libs.parchment
-        neoFormTimestamp = libs.versions.neoform
-
-        supportedMinecraftVersions = libs.versions.minecraft.supported.fabric
-        neoForgeSupportedMinecraftVersions = libs.versions.minecraft.supported.neoforge
-    }
-
-    fabricApi = libs.fabric.api
-
-    neoForgeVersion = libs.versions.neoforge
-    supportedNeoForgeVersions = libs.versions.supported.neoforge
-
-    modPublishOptions {
-        changelog = file("CHANGELOG.md").readText()
-        type = ReleaseType.of(properties["release_type"] as String)
-    }
-
-    modrinthOptions {
-        accessToken = providers.gradleProperty("MODRINTH_API_TOKEN")
-        projectId = properties["modrinth_project_id"] as String
-        minecraftVersions.addAll(libs.versions.minecraft.release.get().split(","))
-
-        // Fabric API
-        requires {
-            slug = "P7dR8mSH"
+    settings {
+        repositories {
+            maven {
+                name = "eclipseisoffline"
+                url = uri("https://maven.eclipseisoffline.xyz/releases")
+            }
         }
     }
 
-    githubOptions {
-        accessToken = providers.gradleProperty("GITHUB_API_PUBLISH_TOKEN")
-        repository = properties["github_repository"] as String
-        commitish = properties["git_branch"] as String
+    minecraft {
+        minecraft = libs.minecraft
+        supported(libs.versions.minecraft.release)
     }
 
-    publishToMaven {
-        name = "eclipseisoffline"
-        url = uri("https://maven.eclipseisoffline.xyz/releases")
-        credentials(PasswordCredentials::class)
+    fabricApi = libs.fabric.api
+    neoForgeVersion = libs.versions.neoforge
+
+    sharedDependencies {
+        multiModInclude(multiModImplementation(libs.commonpermissionsapi))
+        multiModInclude(multiModImplementation(libs.filefixutils))
+    }
+
+    modPublishing {
+        base {
+            changelog = file("CHANGELOG.md").readText()
+            type = ReleaseType.of(properties["release_type"] as String)
+        }
+
+        modrinth {
+            accessToken = providers.gradleProperty("MODRINTH_API_TOKEN")
+            projectId = properties["modrinth_project_id"] as String
+            minecraftVersions.addAll(libs.versions.minecraft.release.get().split(","))
+        }
+
+        github {
+            accessToken = providers.gradleProperty("GITHUB_API_PUBLISH_TOKEN")
+            repository = properties["github_repository"] as String
+            commitish = properties["git_branch"] as String
+        }
+    }
+
+    publishing {
+        maven {
+            name = "eclipseisoffline"
+            url = uri("https://maven.eclipseisoffline.xyz/releases")
+            credentials(PasswordCredentials::class)
+        }
     }
 }
