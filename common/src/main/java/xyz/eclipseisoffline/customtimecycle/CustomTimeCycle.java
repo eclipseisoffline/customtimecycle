@@ -12,6 +12,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.PermissionCheck;
 import net.minecraft.util.StringUtil;
 import org.slf4j.Logger;
@@ -102,5 +103,9 @@ public abstract class CustomTimeCycle {
 
     public static CustomTimeCycle getInstance() {
         return instance;
+    }
+
+    public static Identifier getModdedIdentifier(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 }
