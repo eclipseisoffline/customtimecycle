@@ -4,10 +4,15 @@
   "package": "xyz.eclipseisoffline.customtimecycle.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "MinecraftServerMixin",
+    "PrimaryLevelDataMixin",
     "ServerClockManagerMixin",
     "ServerClockManagerMixin$ClockInstanceMixin",
     "TimeCommandAccessor",
-    "TimelineMixin"
+    "TimelineMixin",
+    "client.CreateWorldScreenMixin",
+    "client.CreateWorldScreenMixin$MoreTabMixin",
+    "client.WorldCreationUiStateMixin"
   ],
   "client": [
   ],

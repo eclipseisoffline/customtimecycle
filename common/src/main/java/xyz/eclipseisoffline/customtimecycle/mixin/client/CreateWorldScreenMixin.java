@@ -17,22 +17,24 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.eclipseisoffline.customtimecycle.client.ManageTimeCycleScreen;
-import xyz.eclipseisoffline.customtimecycle.screens.TimeCycleState;
+import xyz.eclipseisoffline.customtimecycle.screens.PreconfiguredTimeCycleState;
+
+import java.util.Objects;
 
 @Mixin(CreateWorldScreen.class)
 public abstract class CreateWorldScreenMixin extends Screen {
 
     @Shadow
     @Final
-    WorldCreationUiState uiState;
+    private WorldCreationUiState uiState;
 
     protected CreateWorldScreenMixin(Component title) {
         super(title);
     }
 
     @Inject(method = "onCreate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/worldselection/WorldOpenFlows;confirmWorldCreation(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;Lcom/mojang/serialization/Lifecycle;Ljava/lang/Runnable;Z)V"))
-    public void setPreconfiguredTimeCycle(CallbackInfo callbackInfo, @Local PrimaryLevelData levelData) {
-        ((TimeCycleState) levelData).customTimeCycle$setPreconfiguredTimeCycle(((TimeCycleState) uiState).customTimeCycle$getPreconfiguredTimeCycle());
+    public void setPreconfiguredTimeCycle(CallbackInfo callbackInfo, @Local(name = "worldData") PrimaryLevelData levelData) {
+        ((PreconfiguredTimeCycleState) levelData).customTimeCycle$setPreconfiguredTimeCycle(((PreconfiguredTimeCycleState) uiState).customTimeCycle$getPreconfiguredTimeCycle());
     }
 
     @Mixin(targets = "net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$MoreTab")
@@ -43,11 +45,11 @@ public abstract class CreateWorldScreenMixin extends Screen {
         }
 
         @Inject(method = "<init>", at = @At("TAIL"))
-        public void addTimeCycleOption(CreateWorldScreen createWorldScreen, CallbackInfo callbackInfo, @Local GridLayout.RowHelper rowHelper) {
+        public void addTimeCycleOption(CreateWorldScreen createWorldScreen, CallbackInfo callbackInfo, @Local(name = "helper") GridLayout.RowHelper rowHelper) {
             rowHelper.addChild(Button.builder(Component.translatable("gui.customtimecycle.edit_button"),
                             button -> Minecraft.getInstance().setScreen(new ManageTimeCycleScreen(createWorldScreen,
-                                    ((TimeCycleState) createWorldScreen.getUiState()).customTimeCycle$getPreconfiguredTimeCycle(),
-                                    preconfigured -> ((TimeCycleState) createWorldScreen.getUiState()).customTimeCycle$setPreconfiguredTimeCycle(preconfigured), false)))
+                                    Objects.requireNonNull(((PreconfiguredTimeCycleState) createWorldScreen.getUiState()).customTimeCycle$getPreconfiguredTimeCycle()),
+                                    preconfigured -> ((PreconfiguredTimeCycleState) createWorldScreen.getUiState()).customTimeCycle$setPreconfiguredTimeCycle(preconfigured), false)))
                     .width(210)
                     .build());
         }

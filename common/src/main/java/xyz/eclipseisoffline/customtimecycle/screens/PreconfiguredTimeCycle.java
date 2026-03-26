@@ -3,11 +3,10 @@ package xyz.eclipseisoffline.customtimecycle.screens;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.arguments.TimeArgument;
-import xyz.eclipseisoffline.customtimecycle.TimeManager;
 
 public record PreconfiguredTimeCycle(String dayTimeInput, String nightTimeInput, int dayTime, int nightTime) {
     private static final TimeArgument TIME_PARSER = TimeArgument.time(1);
-    public static final PreconfiguredTimeCycle DEFAULT = new PreconfiguredTimeCycle("0.5d", "0.5d", (int) TimeManager.NORMAL_DAY_TIME, (int) TimeManager.NORMAL_NIGHT_TIME);
+    public static final PreconfiguredTimeCycle DEFAULT = new PreconfiguredTimeCycle("0.5d", "0.5d", 12000, 12000);
 
     public PreconfiguredTimeCycle withDayTime(String input) {
         try {
