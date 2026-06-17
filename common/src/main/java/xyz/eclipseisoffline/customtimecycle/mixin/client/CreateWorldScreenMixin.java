@@ -47,7 +47,7 @@ public abstract class CreateWorldScreenMixin extends Screen {
         @Inject(method = "<init>", at = @At("TAIL"))
         public void addTimeCycleOption(CreateWorldScreen createWorldScreen, CallbackInfo callbackInfo, @Local(name = "helper") GridLayout.RowHelper rowHelper) {
             rowHelper.addChild(Button.builder(Component.translatable("gui.customtimecycle.edit_button"),
-                            button -> Minecraft.getInstance().setScreen(new ManageTimeCycleScreen(createWorldScreen,
+                            button -> Minecraft.getInstance().gui.setScreen(new ManageTimeCycleScreen(createWorldScreen,
                                     Objects.requireNonNull(((PreconfiguredTimeCycleState) createWorldScreen.getUiState()).customTimeCycle$getPreconfiguredTimeCycle()),
                                     preconfigured -> ((PreconfiguredTimeCycleState) createWorldScreen.getUiState()).customTimeCycle$setPreconfiguredTimeCycle(preconfigured), false)))
                     .width(210)

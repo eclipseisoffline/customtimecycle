@@ -1,1 +1,1 @@
-- Mark 26.1.1 as supported.
+- Update to 26.2.

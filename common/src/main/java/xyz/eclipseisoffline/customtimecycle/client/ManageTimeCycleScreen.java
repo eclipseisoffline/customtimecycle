@@ -99,7 +99,7 @@ public class ManageTimeCycleScreen extends Screen {
 
     @Override
     public void onClose() {
-        minecraft.setScreen(parent);
+        minecraft.gui.setScreen(parent);
     }
 
     private static Component dayInputLabel(int time) {
