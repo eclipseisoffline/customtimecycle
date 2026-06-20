@@ -12,6 +12,7 @@ import net.minecraft.world.clock.ServerClockManager;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jspecify.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -169,7 +170,7 @@ public abstract class ServerClockManagerMixin extends SavedData implements Clock
         @Unique
         private float customTimeCycle$rateMultiplier = 1.0F;
 
-        @ModifyExpressionValue(method = {"tick", "packNetworkState"}, at = @At(value = "FIELD", target = "Lnet/minecraft/world/clock/ServerClockManager$ClockInstance;rate:F"))
+        @ModifyExpressionValue(method = {"tick", "packNetworkState"}, at = @At(value = "FIELD", target = "Lnet/minecraft/world/clock/ServerClockManager$ClockInstance;rate:F", opcode = Opcodes.GETFIELD))
         public float multiplyRateByManagedValue(float original) {
             return original * customTimeCycle$rateMultiplier;
         }
